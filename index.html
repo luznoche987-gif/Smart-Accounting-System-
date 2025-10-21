@@ -1,0 +1,2956 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحاسب الذكي - Smart Accountant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #4cc9f0;
+            --success: #4ade80;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --border: #e2e8f0;
+            --card-bg: #ffffff;
+            --bg-color: #f1f5f9;
+            --text-color: #1e293b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        [dir="ltr"] {
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        [dir="rtl"] {
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dark-theme {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --border: #334155;
+            --light: #1e293b;
+            --dark: #f8fafc;
+            --gray: #94a3b8;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        body[dir="rtl"] {
+            text-align: right;
+        }
+
+        body[dir="ltr"] {
+            text-align: left;
+        }
+
+        .app-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* شريط الحالة */
+        .status-bar {
+            background: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .developer-info {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 11px;
+        }
+
+        [dir="rtl"] .developer-info {
+            left: auto;
+            right: 15px;
+        }
+
+        .status-bar .date {
+            font-weight: 500;
+        }
+
+        .status-bar .time {
+            font-weight: 600;
+        }
+
+        /* شريط البحث */
+        .search-bar {
+            background: var(--card-bg);
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 100%;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border-radius: 25px;
+            border: 1px solid var(--border);
+            background: var(--light);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        [dir="rtl"] .search-container input {
+            padding: 12px 15px 12px 45px;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .search-container i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        [dir="rtl"] .search-container i {
+            right: auto;
+            left: 15px;
+        }
+
+        /* بطاقات الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0 5px;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        [dir="rtl"] .stat-change {
+            flex-direction: row-reverse;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* الأقسام */
+        .section {
+            margin: 20px 15px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section-link {
+            color: var(--primary);
+            font-size: 14px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        [dir="rtl"] .section-link {
+            flex-direction: row-reverse;
+        }
+
+        /* العمليات السريعة */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .action-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .action-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* الإدارة المالية */
+        .finance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .finance-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .finance-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .finance-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .finance-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 5px 0;
+            color: var(--primary);
+        }
+
+        .finance-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* شريط التنقل السفلي */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 12px;
+            transition: all 0.3s;
+            flex: 1;
+            padding: 5px 0;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* محتوى الصفحات */
+        .page {
+            display: none;
+            padding: 15px;
+            padding-bottom: 70px; /* مساحة للتنقل السفلي */
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* رأس الصفحة */
+        .page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        [dir="rtl"] .page-header {
+            flex-direction: row-reverse;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* قوائم */
+        .list-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .list-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+
+        [dir="rtl"] .list-item {
+            flex-direction: row-reverse;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:hover {
+            background: var(--light);
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        [dir="rtl"] .item-info {
+            flex-direction: row-reverse;
+        }
+
+        .item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .item-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .item-desc {
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        .item-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* الأزرار */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        [dir="rtl"] .btn {
+            flex-direction: row-reverse;
+        }
+
+        .btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #22c55e;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #eab308;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* النماذج */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        /* بطاقات */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        [dir="rtl"] .card-header {
+            flex-direction: row-reverse;
+        }
+
+        .card-header i {
+            color: var(--primary);
+        }
+
+        /* التبديل بين الوضع الداكن والفاتح */
+        .theme-toggle {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            cursor: pointer;
+        }
+
+        [dir="rtl"] .theme-toggle {
+            left: auto;
+            right: 15px;
+        }
+
+        /* تبديل اللغة */
+        .language-toggle {
+            position: fixed;
+            top: 65px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        [dir="rtl"] .language-toggle {
+            left: auto;
+            right: 15px;
+        }
+
+        /* نمط النافذة المنبثقة */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        [dir="rtl"] .modal-header {
+            flex-direction: row-reverse;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        /* صفحة تسجيل الدخول */
+        .login-container {
+            max-width: 450px;
+            margin: 50px auto;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .login-body {
+            padding: 25px;
+        }
+
+        .login-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .login-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        [dir="rtl"] .login-option {
+            flex-direction: row-reverse;
+        }
+
+        .login-option:hover {
+            background: var(--light);
+            transform: translateY(-2px);
+        }
+
+        .login-option i {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .login-option-text {
+            flex: 1;
+        }
+
+        .login-option-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .login-option-desc {
+            color: var(--gray);
+            font-size: 13px;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* جدول السجلات */
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .records-table th, .records-table td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: center;
+        }
+
+        .records-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .records-table tr:nth-child(even) {
+            background: var(--light);
+        }
+
+        /* نافذة جهات الاتصال */
+        .contacts-modal .modal-content {
+            max-width: 400px;
+        }
+
+        .contacts-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        [dir="rtl"] .contact-item {
+            flex-direction: row-reverse;
+        }
+
+        .contact-item:last-child {
+            border-bottom: none;
+        }
+
+        .contact-item:hover {
+            background: var(--light);
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-left: 12px;
+        }
+
+        [dir="rtl"] .contact-avatar {
+            margin-left: 0;
+            margin-right: 12px;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .contact-phone {
+            color: var(--gray);
+            font-size: 13px;
+        }
+
+        /* التكيف مع الشاشات الصغيرة */
+        @media (max-width: 480px) {
+            .stats-grid, .quick-actions, .finance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card, .action-card, .finance-card {
+                padding: 15px;
+            }
+            
+            .section {
+                margin: 15px 10px;
+            }
+            
+            .developer-info {
+                display: none;
+            }
+        }
+
+        /* تحسينات للشاشات الكبيرة */
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 500px;
+                margin: 0 auto;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                min-height: 100vh;
+                position: relative;
+            }
+            
+            .bottom-nav {
+                max-width: 500px;
+                margin: 0 auto;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        /* أنماط إضافية للزر الجديد */
+        .contacts-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            margin-right: 5px;
+        }
+
+        [dir="rtl"] .contacts-btn {
+            margin-right: 0;
+            margin-left: 5px;
+        }
+        
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .client-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* إشعار المطور */
+        .developer-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            z-index: 3000;
+            text-align: center;
+            max-width: 300px;
+            border: 2px solid var(--primary);
+        }
+
+        .developer-notification h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .developer-notification p {
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .developer-notification .btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body dir="rtl">
+    <!-- شاشة تسجيل الدخول -->
+    <div id="login-page" class="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-calculator"></i> <span data-i18n="app_title">نظام المحاسب الذكي</span></h1>
+            <p data-i18n="login_subtitle">سجل الدخول لبدء استخدام النظام المحاسبي المتكامل</p>
+            <div class="developer-info" data-i18n="developer_info">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</div>
+        </div>
+        <div class="login-body">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="email">البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="loginEmail" data-i18n-placeholder="enter_email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="password">كلمة المرور</label>
+                    <input type="password" class="form-control" id="loginPassword" data-i18n-placeholder="enter_password" required>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="login">تسجيل الدخول</button>
+            </form>
+            
+            <div style="text-align: center; margin: 20px 0; color: var(--gray);" data-i18n="or_login_with">أو سجل الدخول باستخدام</div>
+            
+            <div class="login-options">
+                <div class="login-option" onclick="loginWithGoogle()">
+                    <i class="fab fa-google"></i>
+                    <div class="login-option-text">
+                        <div class="login-option-title" data-i18n="google_login">تسجيل الدخول بحساب جوجل</div>
+                        <div class="login-option-desc" data-i18n="google_login_desc">استخدم حساب جوجل الخاص بك</div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+
+                <div class="login-option" onclick="loginAsGuest()">
+                    <i class="fas fa-user"></i>
+                    <div class="login-option-text">
+                        <div class="login-option-title" data-i18n="guest_login">الدخول كضيف</div>
+                        <div class="login-option-desc" data-i18n="guest_login_desc">استخدم التطبيق بدون تسجيل</div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+            </div>
+            
+            <div class="login-footer">
+                <p data-i18n="no_account">ليس لديك حساب؟ <a href="#" onclick="showRegisterModal()" data-i18n="create_account">إنشاء حساب جديد</a></p>
+                <p style="margin-top: 10px;" data-i18n="developer_info">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- التطبيق الرئيسي -->
+    <div class="app-container" id="main-app" style="display: none;">
+        <div class="theme-toggle" id="themeToggle">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </div>
+
+        <div class="language-toggle" id="languageToggle" onclick="toggleLanguage()">
+            EN
+        </div>
+
+        <!-- شريط الحالة -->
+        <div class="status-bar">
+            <div class="developer-info" data-i18n="developer_info">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</div>
+            <div class="date" id="currentDate">السبت، ١٨ أكتوبر ٢٠٢٥</div>
+            <div class="time" id="currentTime">10:30 ص</div>
+        </div>
+
+        <!-- شريط البحث -->
+        <div class="search-bar">
+            <div class="search-container">
+                <input type="text" data-i18n-placeholder="search_app" id="searchInput">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <!-- الصفحة الرئيسية -->
+        <div id="home-page" class="page active">
+            <!-- إحصائيات سريعة -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label" data-i18n="revenue">الإيرادات</div>
+                    <div class="stat-value" id="revenueValue">0.00</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="revenueChange" data-i18n="last_month">0% عن الشهر الماضي</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label" data-i18n="expenses">المصروفات</div>
+                    <div class="stat-value" id="expensesValue">0.00</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down"></i>
+                        <span id="expensesChange" data-i18n="last_month">0% عن الشهر الماضي</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label" data-i18n="net_profit">صافي الربح</div>
+                    <div class="stat-value" id="profitValue">0.00</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="profitChange" data-i18n="last_month">0% عن الشهر الماضي</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label" data-i18n="balance">رصيد الخزينة</div>
+                    <div class="stat-value" id="balanceValue">0.00</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span id="balanceChange" data-i18n="last_month">0% عن الشهر الماضي</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- العمليات السريعة -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title" data-i18n="quick_actions">العمليات السريعة</div>
+                    <a href="#" class="section-link" onclick="showPage('transactions')">
+                        <span data-i18n="view_all">عرض الكل</span> <i class="fas fa-chevron-left"></i>
+                    </a>
+                </div>
+                <div class="quick-actions">
+                    <div class="action-card" onclick="showTransactionModal('invoice')">
+                        <div class="action-icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="action-name" data-i18n="new_invoice">فاتورة جديدة</div>
+                    </div>
+                    <div class="action-card" onclick="showTransactionModal('receipt')">
+                        <div class="action-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="action-name" data-i18n="new_receipt">سند جديد</div>
+                    </div>
+                    <div class="action-card" onclick="showTransactionModal('transfer')">
+                        <div class="action-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="action-name" data-i18n="new_transfer">حوالة جديدة</div>
+                    </div>
+                    <div class="action-card" onclick="accessDeviceContacts()">
+                        <div class="action-icon">
+                            <i class="fas fa-address-book"></i>
+                        </div>
+                        <div class="action-name" data-i18n="contacts">جهات الاتصال</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الإدارة المالية -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title" data-i18n="financial_management">الإدارة المالية</div>
+                    <a href="#" class="section-link" onclick="showPage('management')">
+                        <span data-i18n="view_all">عرض الكل</span> <i class="fas fa-chevron-left"></i>
+                    </a>
+                </div>
+                <div class="finance-grid">
+                    <div class="finance-card" onclick="showPage('clients')">
+                        <div class="finance-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="finance-value" id="clientsCount">0</div>
+                        <div class="finance-label" data-i18n="clients">العملاء</div>
+                    </div>
+                    <div class="finance-card" onclick="showPage('suppliers')">
+                        <div class="finance-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="finance-value" id="suppliersCount">0</div>
+                        <div class="finance-label" data-i18n="suppliers">الموردين</div>
+                    </div>
+                    <div class="finance-card" onclick="showPage('debts')">
+                        <div class="finance-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="finance-value" id="debtsCount">0</div>
+                        <div class="finance-label" data-i18n="debts">الديون</div>
+                    </div>
+                    <div class="finance-card" onclick="showPage('employees')">
+                        <div class="finance-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="finance-value" id="employeesCount">0</div>
+                        <div class="finance-label" data-i18n="employees">الموظفين</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة العملاء -->
+        <div id="clients-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('home')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" data-i18n="clients">العملاء</div>
+            </div>
+
+            <button class="btn btn-block" onclick="showClientModal()">
+                <i class="fas fa-plus"></i> <span data-i18n="add_new_client">إضافة عميل جديد</span>
+            </button>
+            
+            <!-- زر الوصول المباشر إلى جهات الاتصال -->
+            <button class="btn btn-outline btn-block" onclick="accessDeviceContacts()" style="margin-top: 10px;">
+                <i class="fas fa-address-book"></i> <span data-i18n="access_device_contacts">الوصول إلى جهات اتصال الجهاز</span>
+            </button>
+
+            <div class="list-container" id="clientsList">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+
+        <!-- صفحة سجل العميل -->
+        <div id="client-records-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('clients')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" id="clientRecordsTitle" data-i18n="client_records">سجل العميل</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-plus-circle"></i> <span data-i18n="add_new_transaction">إضافة معاملة جديدة</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label" data-i18n="item_name">اسم الصنف</label>
+                        <input type="text" class="form-control" id="itemName" data-i18n-placeholder="enter_item_name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-i18n="value">القيمة</label>
+                        <input type="number" class="form-control" id="itemValue" data-i18n-placeholder="enter_value" step="0.01">
+                    </div>
+                    <button class="btn btn-block" onclick="addClientRecord()">
+                        <i class="fas fa-plus"></i> <span data-i18n="add">إضافة</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-history"></i> <span data-i18n="transaction_history">سجل المعاملات</span>
+                </div>
+                <div class="card-body">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="item_name">اسم الصنف</th>
+                                <th data-i18n="value">القيمة</th>
+                                <th data-i18n="date">التاريخ</th>
+                                <th data-i18n="points">النقاط</th>
+                                <th data-i18n="options">خيارات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientRecordsTable">
+                            <!-- سيتم ملؤها ديناميكياً -->
+                        </tbody>
+                    </table>
+                    <div class="total" id="clientTotal" data-i18n="total">الإجمالي: 0.00</div>
+                    
+                    <div class="btn-group" style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-success" onclick="sendClientStatement('whatsapp')">
+                            <i class="fab fa-whatsapp"></i> <span data-i18n="send_whatsapp">إرسال عبر واتساب</span>
+                        </button>
+                        <button class="btn btn-info" onclick="sendClientStatement('sms')">
+                            <i class="fas fa-sms"></i> <span data-i18n="send_sms">إرسال رسالة نصية</span>
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteClientAccount()">
+                            <i class="fas fa-trash"></i> <span data-i18n="delete_account">حذف الحساب</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الموظفين -->
+        <div id="employees-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('home')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" data-i18n="employees">الموظفين</div>
+            </div>
+
+            <button class="btn btn-block" onclick="showEmployeeModal()">
+                <i class="fas fa-plus"></i> <span data-i18n="add_new_employee">إضافة موظف جديد</span>
+            </button>
+
+            <div class="list-container" id="employeesList">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+
+        <!-- صفحة سجل الموظف -->
+        <div id="employee-records-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('employees')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" id="employeeRecordsTitle" data-i18n="employee_records">سجل الموظف</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-plus-circle"></i> <span data-i18n="add_new_transaction">إضافة معاملة جديدة</span>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label" data-i18n="item_name">اسم الصنف</label>
+                        <input type="text" class="form-control" id="employeeItemName" data-i18n-placeholder="enter_item_name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-i18n="value">القيمة</label>
+                        <input type="number" class="form-control" id="employeeItemValue" data-i18n-placeholder="enter_value" step="0.01">
+                    </div>
+                    <button class="btn btn-block" onclick="addEmployeeRecord()">
+                        <i class="fas fa-plus"></i> <span data-i18n="add">إضافة</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-history"></i> <span data-i18n="transaction_history">سجل المعاملات</span>
+                </div>
+                <div class="card-body">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="item_name">اسم الصنف</th>
+                                <th data-i18n="value">القيمة</th>
+                                <th data-i18n="date">التاريخ</th>
+                                <th data-i18n="points">النقاط</th>
+                                <th data-i18n="options">خيارات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeRecordsTable">
+                            <!-- سيتم ملؤها ديناميكياً -->
+                        </tbody>
+                    </table>
+                    <div class="total" id="employeeTotal" data-i18n="total">الإجمالي: 0.00</div>
+                    
+                    <div class="btn-group" style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-danger" onclick="deleteEmployeeAccount()">
+                            <i class="fas fa-trash"></i> <span data-i18n="delete_account">حذف الحساب</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة التقارير -->
+        <div id="reports-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('home')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" data-i18n="reports">التقارير</div>
+            </div>
+
+            <div class="list-container">
+                <div class="list-item" onclick="generateReport('clients')">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="clients_report">تقرير العملاء</div>
+                            <div class="item-desc" data-i18n="clients_report_desc">عرض تقرير مفصل عن العملاء</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="generateReport('financial')">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="financial_report">تقرير مالي</div>
+                            <div class="item-desc" data-i18n="financial_report_desc">عرض التقرير المالي الشامل</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="generateReport('debts')">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="debts_report">تقرير المديونيات</div>
+                            <div class="item-desc" data-i18n="debts_report_desc">عرض تقرير المديونيات</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="generateReport('employees')">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="employees_report">تقرير الموظفين</div>
+                            <div class="item-desc" data-i18n="employees_report_desc">عرض تقرير الموظفين والرواتب</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الإعدادات -->
+        <div id="settings-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('home')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" data-i18n="settings">الإعدادات</div>
+            </div>
+
+            <div class="list-container">
+                <div class="list-item" onclick="toggleTheme()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="appearance">المظهر</div>
+                            <div class="item-desc" data-i18n="appearance_desc">تبديل الوضع الداكن/الفاتح</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="accessDeviceContacts()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-address-book"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="device_contacts">جهات اتصال الجهاز</div>
+                            <div class="item-desc" data-i18n="device_contacts_desc">الوصول إلى جهات اتصال جهازك</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="showContactsModal()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-address-book"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="saved_contacts">جهات الاتصال المحفوظة</div>
+                            <div class="item-desc" data-i18n="saved_contacts_desc">الوصول إلى جهات الاتصال المحفوظة</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="accessDrive()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fab fa-google-drive"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="cloud_storage">التخزين السحابي</div>
+                            <div class="item-desc" data-i18n="cloud_storage_desc">الوصول إلى Google Drive</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="createBackup()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="backup">نسخ احتياطي</div>
+                            <div class="item-desc" data-i18n="backup_desc">إنشاء نسخة احتياطية من البيانات</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="restoreBackup()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="restore_data">استعادة بيانات</div>
+                            <div class="item-desc" data-i18n="restore_data_desc">استعادة البيانات من نسخة احتياطية</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="deleteAllData()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="delete_all_data">حذف جميع البيانات</div>
+                            <div class="item-desc" data-i18n="delete_all_data_desc">حذف جميع السجلات والمعلومات</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="logout()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="logout">تسجيل الخروج</div>
+                            <div class="item-desc" data-i18n="logout_desc">تسجيل الخروج من التطبيق</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+            </div>
+            
+            <div class="login-footer" style="margin-top: 20px;">
+                <p data-i18n="developer_info">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</p>
+            </div>
+        </div>
+
+        <!-- شريط التنقل السفلي -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="showPage('home')">
+                <i class="fas fa-home nav-icon"></i>
+                <span data-i18n="home">الرئيسية</span>
+            </div>
+            <div class="nav-item" onclick="showPage('clients')">
+                <i class="fas fa-users nav-icon"></i>
+                <span data-i18n="clients">العملاء</span>
+            </div>
+            <div class="nav-item" onclick="showPage('employees')">
+                <i class="fas fa-user-tie nav-icon"></i>
+                <span data-i18n="employees">الموظفين</span>
+            </div>
+            <div class="nav-item" onclick="showPage('reports')">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <span data-i18n="reports">التقارير</span>
+            </div>
+            <div class="nav-item" onclick="showPage('settings')">
+                <i class="fas fa-cog nav-icon"></i>
+                <span data-i18n="settings">الإعدادات</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- النوافذ المنبثقة -->
+    <!-- نافذة إضافة عميل -->
+    <div class="modal" id="clientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="add_new_client">إضافة عميل جديد</div>
+                <button class="modal-close" onclick="closeModal('clientModal')">&times;</button>
+            </div>
+            <form id="clientForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="client_name">اسم العميل</label>
+                    <input type="text" class="form-control" id="clientName" data-i18n-placeholder="enter_client_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="phone">رقم الهاتف</label>
+                    <input type="text" class="form-control" id="clientPhone" data-i18n-placeholder="enter_phone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="email">البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="clientEmail" data-i18n-placeholder="enter_email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="address">العنوان</label>
+                    <textarea class="form-control" id="clientAddress" data-i18n-placeholder="enter_address" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="save_client">حفظ العميل</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة موظف -->
+    <div class="modal" id="employeeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="add_new_employee">إضافة موظف جديد</div>
+                <button class="modal-close" onclick="closeModal('employeeModal')">&times;</button>
+            </div>
+            <form id="employeeForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="employee_name">اسم الموظف</label>
+                    <input type="text" class="form-control" id="employeeName" data-i18n-placeholder="enter_employee_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="phone">رقم الهاتف</label>
+                    <input type="text" class="form-control" id="employeePhone" data-i18n-placeholder="enter_phone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="salary">الراتب</label>
+                    <input type="number" class="form-control" id="employeeSalary" data-i18n-placeholder="enter_salary" required step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="position">المسمى الوظيفي</label>
+                    <input type="text" class="form-control" id="employeePosition" data-i18n-placeholder="enter_position" required>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="save_employee">حفظ الموظف</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة جهات الاتصال -->
+    <div class="modal contacts-modal" id="contactsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fas fa-address-book"></i> <span data-i18n="saved_contacts">جهات الاتصال المحفوظة</span></div>
+                <button class="modal-close" onclick="closeModal('contactsModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" id="contactSearch" data-i18n-placeholder="search_contacts" oninput="filterContacts()">
+            </div>
+            <div class="contacts-list" id="contactsList">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+            <div class="form-group">
+                <button class="btn btn-block" onclick="addNewContact()">
+                    <i class="fas fa-plus"></i> <span data-i18n="add_new_contact">إضافة جهة اتصال جديدة</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة التسجيل -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="create_account">إنشاء حساب جديد</div>
+                <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="full_name">الاسم الكامل</label>
+                    <input type="text" class="form-control" id="registerName" data-i18n-placeholder="enter_full_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="email">البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="registerEmail" data-i18n-placeholder="enter_email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="password">كلمة المرور</label>
+                    <input type="password" class="form-control" id="registerPassword" data-i18n-placeholder="create_password" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="confirm_password">تأكيد كلمة المرور</label>
+                    <input type="password" class="form-control" id="registerConfirmPassword" data-i18n-placeholder="re_enter_password" required>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="create_account">إنشاء الحساب</button>
+            </form>
+            <div class="login-footer">
+                <p data-i18n="developer_info">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- إشعار المطور -->
+    <div class="developer-notification" id="developerNotification" style="display: none;">
+        <h3><i class="fas fa-code"></i> <span data-i18n="developer_info">معلومات المطور</span></h3>
+        <p data-i18n="developed_by">تم تطوير هذا التطبيق بواسطة:</p>
+        <p><strong>عبد الوهاب عبد الواحد الريمي</strong></p>
+        <p data-i18n="smart_accountant">نظام المحاسب الذكي المتكامل</p>
+        <button class="btn" onclick="closeDeveloperNotification()" data-i18n="ok">موافق</button>
+    </div>
+
+    <script>
+        // البيانات الأساسية
+        let clients = {};
+        let employees = {};
+        let contacts = [];
+        let currentUser = null;
+        let isDarkMode = false;
+        let currentClient = null;
+        let currentEmployee = null;
+        let currentLanguage = 'ar';
+
+        // ترجمة النصوص
+        const translations = {
+            ar: {
+                // نصوص عامة
+                "app_title": "نظام المحاسب الذكي",
+                "developer_info": "مطور بواسطة: عبد الوهاب عبد الواحد الريمي",
+                "login": "تسجيل الدخول",
+                "logout": "تسجيل الخروج",
+                "save": "حفظ",
+                "cancel": "إلغاء",
+                "delete": "حذف",
+                "edit": "تعديل",
+                "add": "إضافة",
+                "view_all": "عرض الكل",
+                "search": "بحث",
+                "ok": "موافق",
+                
+                // تسجيل الدخول
+                "login_subtitle": "سجل الدخول لبدء استخدام النظام المحاسبي المتكامل",
+                "email": "البريد الإلكتروني",
+                "password": "كلمة المرور",
+                "enter_email": "أدخل بريدك الإلكتروني",
+                "enter_password": "أدخل كلمة المرور",
+                "or_login_with": "أو سجل الدخول باستخدام",
+                "google_login": "تسجيل الدخول بحساب جوجل",
+                "google_login_desc": "استخدم حساب جوجل الخاص بك",
+                "guest_login": "الدخول كضيف",
+                "guest_login_desc": "استخدم التطبيق بدون تسجيل",
+                "no_account": "ليس لديك حساب؟",
+                "create_account": "إنشاء حساب جديد",
+                
+                // الصفحة الرئيسية
+                "revenue": "الإيرادات",
+                "expenses": "المصروفات",
+                "net_profit": "صافي الربح",
+                "balance": "رصيد الخزينة",
+                "last_month": "0% عن الشهر الماضي",
+                "quick_actions": "العمليات السريعة",
+                "new_invoice": "فاتورة جديدة",
+                "new_receipt": "سند جديد",
+                "new_transfer": "حوالة جديدة",
+                "contacts": "جهات الاتصال",
+                "financial_management": "الإدارة المالية",
+                "clients": "العملاء",
+                "suppliers": "الموردين",
+                "debts": "الديون",
+                "employees": "الموظفين",
+                
+                // العملاء
+                "add_new_client": "إضافة عميل جديد",
+                "client_name": "اسم العميل",
+                "enter_client_name": "أدخل اسم العميل",
+                "phone": "رقم الهاتف",
+                "enter_phone": "أدخل رقم الهاتف",
+                "address": "العنوان",
+                "enter_address": "أدخل عنوان العميل",
+                "save_client": "حفظ العميل",
+                "client_records": "سجل العميل",
+                "add_new_transaction": "إضافة معاملة جديدة",
+                "item_name": "اسم الصنف",
+                "enter_item_name": "أدخل اسم الصنف",
+                "value": "القيمة",
+                "enter_value": "أدخل القيمة",
+                "transaction_history": "سجل المعاملات",
+                "date": "التاريخ",
+                "points": "النقاط",
+                "options": "خيارات",
+                "total": "الإجمالي: 0.00",
+                "send_whatsapp": "إرسال عبر واتساب",
+                "send_sms": "إرسال رسالة نصية",
+                "delete_account": "حذف الحساب",
+                
+                // الموظفين
+                "add_new_employee": "إضافة موظف جديد",
+                "employee_name": "اسم الموظف",
+                "enter_employee_name": "أدخل اسم الموظف",
+                "salary": "الراتب",
+                "enter_salary": "أدخل الراتب",
+                "position": "المسمى الوظيفي",
+                "enter_position": "أدخل المسمى الوظيفي",
+                "save_employee": "حفظ الموظف",
+                "employee_records": "سجل الموظف",
+                
+                // التقارير
+                "reports": "التقارير",
+                "clients_report": "تقرير العملاء",
+                "clients_report_desc": "عرض تقرير مفصل عن العملاء",
+                "financial_report": "تقرير مالي",
+                "financial_report_desc": "عرض التقرير المالي الشامل",
+                "debts_report": "تقرير المديونيات",
+                "debts_report_desc": "عرض تقرير المديونيات",
+                "employees_report": "تقرير الموظفين",
+                "employees_report_desc": "عرض تقرير الموظفين والرواتب",
+                
+                // الإعدادات
+                "settings": "الإعدادات",
+                "appearance": "المظهر",
+                "appearance_desc": "تبديل الوضع الداكن/الفاتح",
+                "device_contacts": "جهات اتصال الجهاز",
+                "device_contacts_desc": "الوصول إلى جهات اتصال جهازك",
+                "saved_contacts": "جهات الاتصال المحفوظة",
+                "saved_contacts_desc": "الوصول إلى جهات الاتصال المحفوظة",
+                "cloud_storage": "التخزين السحابي",
+                "cloud_storage_desc": "الوصول إلى Google Drive",
+                "backup": "نسخ احتياطي",
+                "backup_desc": "إنشاء نسخة احتياطية من البيانات",
+                "restore_data": "استعادة بيانات",
+                "restore_data_desc": "استعادة البيانات من نسخة احتياطية",
+                "delete_all_data": "حذف جميع البيانات",
+                "delete_all_data_desc": "حذف جميع السجلات والمعلومات",
+                "logout_desc": "تسجيل الخروج من التطبيق",
+                
+                // جهات الاتصال
+                "access_device_contacts": "الوصول إلى جهات اتصال الجهاز",
+                "search_contacts": "ابحث في جهات الاتصال...",
+                "add_new_contact": "إضافة جهة اتصال جديدة",
+                "search_app": "ابحث في التطبيق...",
+                
+                // التسجيل
+                "full_name": "الاسم الكامل",
+                "enter_full_name": "أدخل اسمك الكامل",
+                "confirm_password": "تأكيد كلمة المرور",
+                "create_password": "أنشئ كلمة مرور",
+                "re_enter_password": "أعد إدخال كلمة المرور",
+                
+                // إشعار المطور
+                "developed_by": "تم تطوير هذا التطبيق بواسطة:",
+                "smart_accountant": "نظام المحاسب الذكي المتكامل",
+                
+                // التنقل
+                "home": "الرئيسية"
+            },
+            en: {
+                // General texts
+                "app_title": "Smart Accountant System",
+                "developer_info": "Developed by: Abdulwahab Abdulwahed Al-Raimi",
+                "login": "Login",
+                "logout": "Logout",
+                "save": "Save",
+                "cancel": "Cancel",
+                "delete": "Delete",
+                "edit": "Edit",
+                "add": "Add",
+                "view_all": "View All",
+                "search": "Search",
+                "ok": "OK",
+                
+                // Login
+                "login_subtitle": "Login to start using the integrated accounting system",
+                "email": "Email",
+                "password": "Password",
+                "enter_email": "Enter your email",
+                "enter_password": "Enter your password",
+                "or_login_with": "Or login with",
+                "google_login": "Login with Google",
+                "google_login_desc": "Use your Google account",
+                "guest_login": "Login as Guest",
+                "guest_login_desc": "Use the app without registration",
+                "no_account": "Don't have an account?",
+                "create_account": "Create new account",
+                
+                // Home page
+                "revenue": "Revenue",
+                "expenses": "Expenses",
+                "net_profit": "Net Profit",
+                "balance": "Balance",
+                "last_month": "0% from last month",
+                "quick_actions": "Quick Actions",
+                "new_invoice": "New Invoice",
+                "new_receipt": "New Receipt",
+                "new_transfer": "New Transfer",
+                "contacts": "Contacts",
+                "financial_management": "Financial Management",
+                "clients": "Clients",
+                "suppliers": "Suppliers",
+                "debts": "Debts",
+                "employees": "Employees",
+                
+                // Clients
+                "add_new_client": "Add New Client",
+                "client_name": "Client Name",
+                "enter_client_name": "Enter client name",
+                "phone": "Phone Number",
+                "enter_phone": "Enter phone number",
+                "address": "Address",
+                "enter_address": "Enter client address",
+                "save_client": "Save Client",
+                "client_records": "Client Records",
+                "add_new_transaction": "Add New Transaction",
+                "item_name": "Item Name",
+                "enter_item_name": "Enter item name",
+                "value": "Value",
+                "enter_value": "Enter value",
+                "transaction_history": "Transaction History",
+                "date": "Date",
+                "points": "Points",
+                "options": "Options",
+                "total": "Total: 0.00",
+                "send_whatsapp": "Send via WhatsApp",
+                "send_sms": "Send SMS",
+                "delete_account": "Delete Account",
+                
+                // Employees
+                "add_new_employee": "Add New Employee",
+                "employee_name": "Employee Name",
+                "enter_employee_name": "Enter employee name",
+                "salary": "Salary",
+                "enter_salary": "Enter salary",
+                "position": "Position",
+                "enter_position": "Enter position",
+                "save_employee": "Save Employee",
+                "employee_records": "Employee Records",
+                
+                // Reports
+                "reports": "Reports",
+                "clients_report": "Clients Report",
+                "clients_report_desc": "View detailed clients report",
+                "financial_report": "Financial Report",
+                "financial_report_desc": "View comprehensive financial report",
+                "debts_report": "Debts Report",
+                "debts_report_desc": "View debts report",
+                "employees_report": "Employees Report",
+                "employees_report_desc": "View employees and salaries report",
+                
+                // Settings
+                "settings": "Settings",
+                "appearance": "Appearance",
+                "appearance_desc": "Toggle dark/light mode",
+                "device_contacts": "Device Contacts",
+                "device_contacts_desc": "Access your device contacts",
+                "saved_contacts": "Saved Contacts",
+                "saved_contacts_desc": "Access saved contacts",
+                "cloud_storage": "Cloud Storage",
+                "cloud_storage_desc": "Access Google Drive",
+                "backup": "Backup",
+                "backup_desc": "Create data backup",
+                "restore_data": "Restore Data",
+                "restore_data_desc": "Restore data from backup",
+                "delete_all_data": "Delete All Data",
+                "delete_all_data_desc": "Delete all records and information",
+                "logout_desc": "Logout from the app",
+                
+                // Contacts
+                "access_device_contacts": "Access Device Contacts",
+                "search_contacts": "Search contacts...",
+                "add_new_contact": "Add New Contact",
+                "search_app": "Search in app...",
+                
+                // Registration
+                "full_name": "Full Name",
+                "enter_full_name": "Enter your full name",
+                "confirm_password": "Confirm Password",
+                "create_password": "Create password",
+                "re_enter_password": "Re-enter password",
+                
+                // Developer notification
+                "developed_by": "This app was developed by:",
+                "smart_accountant": "Smart Accountant Integrated System",
+                
+                // Navigation
+                "home": "Home"
+            }
+        };
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+
+        // تهيئة التطبيق
+        function initApp() {
+            updateDateTime();
+            setInterval(updateDateTime, 60000); // تحديث الوقت كل دقيقة
+            
+            loadData();
+            initTheme();
+            initLanguage();
+            checkLoginStatus();
+            
+            // إضافة مستمعات الأحداث للنماذج
+            document.getElementById('loginForm').addEventListener('submit', login);
+            document.getElementById('registerForm').addEventListener('submit', register);
+            document.getElementById('clientForm').addEventListener('submit', addClient);
+            document.getElementById('employeeForm').addEventListener('submit', addEmployee);
+            
+            // إضافة مستمع للبحث
+            document.getElementById('searchInput').addEventListener('input', searchData);
+            
+            // عرض إشعار المطور عند الدخول
+            setTimeout(showDeveloperNotification, 1000);
+        }
+
+        // تهيئة اللغة
+        function initLanguage() {
+            const savedLanguage = localStorage.getItem('language');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+            }
+            updateLanguage();
+        }
+
+        // تبديل اللغة
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'ar' ? 'en' : 'ar';
+            localStorage.setItem('language', currentLanguage);
+            updateLanguage();
+        }
+
+        // تحديث اللغة
+        function updateLanguage() {
+            // تحديث اتجاه النص
+            document.body.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+            
+            // تحديث نص زر تبديل اللغة
+            document.getElementById('languageToggle').textContent = currentLanguage === 'ar' ? 'EN' : 'AR';
+            
+            // تحديث جميع النصوص المترجمة
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
+            });
+            
+            // تحديث النصوص في عناصر الplaceholder
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[currentLanguage][key]) {
+                    element.placeholder = translations[currentLanguage][key];
+                }
+            });
+            
+            // تحديث التاريخ والوقت
+            updateDateTime();
+        }
+
+        // التحقق من حالة تسجيل الدخول
+        function checkLoginStatus() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainApp();
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        // إظهار شاشة تسجيل الدخول
+        function showLoginScreen() {
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('main-app').style.display = 'none';
+        }
+
+        // إظهار التطبيق الرئيسي
+        function showMainApp() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            updateStats();
+            renderClients();
+            renderEmployees();
+            loadContacts();
+        }
+
+        // تسجيل الدخول
+        function login(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // محاكاة عملية تسجيل الدخول
+            currentUser = {
+                email: email,
+                name: email.split('@')[0],
+                type: 'email'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showMainApp();
+            alert(currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!');
+            
+            // عرض إشعار المطور بعد تسجيل الدخول
+            setTimeout(showDeveloperNotification, 500);
+        }
+
+        // التسجيل بحساب جديد
+        function register(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert(currentLanguage === 'ar' ? 'كلمات المرور غير متطابقة!' : 'Passwords do not match!');
+                return;
+            }
+            
+            // محاكاة عملية التسجيل
+            currentUser = {
+                name: name,
+                email: email,
+                type: 'registered'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            closeModal('registerModal');
+            showMainApp();
+            alert(currentLanguage === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!');
+            
+            // عرض إشعار المطور بعد التسجيل
+            setTimeout(showDeveloperNotification, 500);
+        }
+
+        // تسجيل الدخول بحساب جوجل
+        function loginWithGoogle() {
+            // محاكاة تسجيل الدخول بحساب جوجل
+            currentUser = {
+                name: currentLanguage === 'ar' ? 'مستخدم جوجل' : 'Google User',
+                email: 'user@gmail.com',
+                type: 'google'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showMainApp();
+            alert(currentLanguage === 'ar' ? 'تم تسجيل الدخول بحساب جوجل بنجاح!' : 'Google login successful!');
+            
+            // عرض إشعار المطور بعد تسجيل الدخول
+            setTimeout(showDeveloperNotification, 500);
+        }
+
+        // الدخول كضيف
+        function loginAsGuest() {
+            currentUser = {
+                name: currentLanguage === 'ar' ? 'ضيف' : 'Guest',
+                type: 'guest'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showMainApp();
+            alert(currentLanguage === 'ar' ? 'تم الدخول كضيف بنجاح!' : 'Guest login successful!');
+            
+            // عرض إشعار المطور بعد الدخول كضيف
+            setTimeout(showDeveloperNotification, 500);
+        }
+
+        // تسجيل الخروج
+        function logout() {
+            if (confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من تسجيل الخروج؟' : 'Are you sure you want to logout?')) {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                showLoginScreen();
+                alert(currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح!' : 'Logout successful!');
+            }
+        }
+
+        // تحديث التاريخ والوقت
+        function updateDateTime() {
+            const now = new Date();
+            
+            if (currentLanguage === 'ar') {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateStr = now.toLocaleDateString('ar-SA', options);
+                const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+                
+                document.getElementById('currentDate').textContent = dateStr;
+                document.getElementById('currentTime').textContent = timeStr;
+            } else {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateStr = now.toLocaleDateString('en-US', options);
+                const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                document.getElementById('currentDate').textContent = dateStr;
+                document.getElementById('currentTime').textContent = timeStr;
+            }
+        }
+
+        // تهيئة الوضع الداكن/الفاتح
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                enableDarkMode();
+            } else {
+                enableLightMode();
+            }
+        }
+
+        // تفعيل الوضع الداكن
+        function enableDarkMode() {
+            document.body.classList.add('dark-theme');
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+            isDarkMode = true;
+            localStorage.setItem('theme', 'dark');
+        }
+
+        // تفعيل الوضع الفاتح
+        function enableLightMode() {
+            document.body.classList.remove('dark-theme');
+            document.getElementById('themeIcon').className = 'fas fa-moon';
+            isDarkMode = false;
+            localStorage.setItem('theme', 'light');
+        }
+
+        // تبديل الوضع الداكن/الفاتح
+        function toggleTheme() {
+            if (isDarkMode) {
+                enableLightMode();
+            } else {
+                enableDarkMode();
+            }
+        }
+
+        // استرجاع البيانات من Local Storage
+        function loadData() {
+            if(localStorage.getItem('clients')) {
+                clients = JSON.parse(localStorage.getItem('clients'));
+            }
+            
+            if(localStorage.getItem('employees')) {
+                employees = JSON.parse(localStorage.getItem('employees'));
+            }
+            
+            if(localStorage.getItem('contacts')) {
+                contacts = JSON.parse(localStorage.getItem('contacts'));
+            }
+        }
+
+        // حفظ البيانات في Local Storage
+        function saveData() {
+            localStorage.setItem('clients', JSON.stringify(clients));
+            localStorage.setItem('employees', JSON.stringify(employees));
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            updateStats();
+            
+            // محاكاة الحفظ في Google Drive
+            if (currentUser && currentUser.type !== 'guest') {
+                saveToDrive();
+            }
+        }
+
+        // محاكاة الحفظ في Google Drive
+        function saveToDrive() {
+            console.log('جاري حفظ البيانات في Google Drive...');
+            // في التطبيق الحقيقي، سيتم استخدام Google Drive API
+        }
+
+        // تحديث الإحصائيات
+        function updateStats() {
+            document.getElementById('clientsCount').textContent = Object.keys(clients).length;
+            document.getElementById('employeesCount').textContent = Object.keys(employees).length;
+        }
+
+        // عرض صفحة معينة
+        function showPage(pageId) {
+            // إخفاء جميع الصفحات
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // إزالة النشاط من جميع عناصر التنقل
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // إظهار الصفحة المطلوبة
+            document.getElementById(pageId + '-page').classList.add('active');
+            
+            // تفعيل عنصر التنقل المناسب
+            if (pageId === 'home') {
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (pageId === 'clients') {
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            } else if (pageId === 'employees') {
+                document.querySelectorAll('.nav-item')[2].classList.add('active');
+            } else if (pageId === 'reports') {
+                document.querySelectorAll('.nav-item')[3].classList.add('active');
+            } else if (pageId === 'settings') {
+                document.querySelectorAll('.nav-item')[4].classList.add('active');
+            }
+        }
+
+        // فتح نافذة عميل
+        function showClientModal() {
+            openModal('clientModal');
+        }
+
+        // فتح نافذة موظف
+        function showEmployeeModal() {
+            openModal('employeeModal');
+        }
+
+        // فتح نافذة جهات الاتصال
+        function showContactsModal() {
+            openModal('contactsModal');
+            renderContacts();
+        }
+
+        // فتح نافذة تسجيل
+        function showRegisterModal() {
+            openModal('registerModal');
+        }
+
+        // فتح نافذة منبثقة
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        // إغلاق نافذة منبثقة
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            // إعادة تعيين النماذج
+            if (modalId !== 'contactsModal') {
+                document.getElementById(modalId.replace('Modal', 'Form')).reset();
+            }
+        }
+
+        // إضافة عميل
+        function addClient(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('clientName').value;
+            const phone = document.getElementById('clientPhone').value;
+            const email = document.getElementById('clientEmail').value;
+            const address = document.getElementById('clientAddress').value;
+            
+            clients[name] = {
+                phone: phone,
+                email: email,
+                address: address,
+                joinDate: new Date().toISOString().split('T')[0],
+                records: [],
+                totalSpent: 0,
+                loyaltyPoints: 0
+            };
+            
+            saveData();
+            renderClients();
+            closeModal('clientModal');
+            
+            alert(currentLanguage === 'ar' ? 'تم إضافة العميل بنجاح!' : 'Client added successfully!');
+        }
+
+        // إضافة موظف
+        function addEmployee(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('employeeName').value;
+            const phone = document.getElementById('employeePhone').value;
+            const salary = parseFloat(document.getElementById('employeeSalary').value);
+            const position = document.getElementById('employeePosition').value;
+            
+            employees[name] = {
+                phone: phone,
+                salary: salary,
+                position: position,
+                joinDate: new Date().toISOString().split('T')[0],
+                records: []
+            };
+            
+            saveData();
+            renderEmployees();
+            closeModal('employeeModal');
+            
+            alert(currentLanguage === 'ar' ? 'تم إضافة الموظف بنجاح!' : 'Employee added successfully!');
+        }
+
+        // عرض قائمة العملاء مع إضافة زر جهات الاتصال
+        function renderClients() {
+            const container = document.getElementById('clientsList');
+            container.innerHTML = '';
+            
+            if (Object.keys(clients).length === 0) {
+                container.innerHTML = `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <div class="item-details">
+                                <div class="item-name">${currentLanguage === 'ar' ? 'لا يوجد عملاء' : 'No clients'}</div>
+                                <div class="item-desc">${currentLanguage === 'ar' ? 'قم بإضافة عميل جديد' : 'Add a new client'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            for (const client in clients) {
+                const clientElement = document.createElement('div');
+                clientElement.className = 'list-item';
+                clientElement.onclick = () => showClientRecords(client);
+                clientElement.innerHTML = `
+                    <div class="client-header">
+                        <div class="item-info">
+                            <div class="item-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="item-details">
+                                <div class="item-name">${client}</div>
+                                <div class="item-desc">${clients[client].phone} - ${clients[client].loyaltyPoints} ${currentLanguage === 'ar' ? 'نقطة' : 'point'}</div>
+                            </div>
+                        </div>
+                        <div class="client-actions">
+                            <button class="contacts-btn" onclick="event.stopPropagation(); addClientToContacts('${client}')" title="${currentLanguage === 'ar' ? 'إضافة إلى جهات الاتصال' : 'Add to contacts'}">
+                                <i class="fas fa-address-book"></i>
+                            </button>
+                            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="event.stopPropagation(); deleteClient('${client}')">
+                                <i class="fas fa-trash"></i> ${currentLanguage === 'ar' ? 'حذف' : 'Delete'}
+                            </button>
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(clientElement);
+            }
+        }
+
+        // إضافة عميل إلى جهات الاتصال
+        function addClientToContacts(clientName) {
+            const client = clients[clientName];
+            
+            // التحقق مما إذا كان العميل موجودًا بالفعل في جهات الاتصال
+            const existingContact = contacts.find(contact => contact.phone === client.phone);
+            if (existingContact) {
+                alert(currentLanguage === 'ar' ? 'هذا العميل موجود بالفعل في جهات الاتصال!' : 'This client already exists in contacts!');
+                return;
+            }
+            
+            // إضافة العميل إلى جهات الاتصال
+            contacts.push({
+                name: clientName,
+                phone: client.phone,
+                email: client.email || '',
+                address: client.address || ''
+            });
+            
+            saveData();
+            alert(`${clientName} ${currentLanguage === 'ar' ? 'تم إضافته إلى جهات الاتصال بنجاح!' : 'has been added to contacts successfully!'}`);
+        }
+
+        // عرض قائمة الموظفين
+        function renderEmployees() {
+            const container = document.getElementById('employeesList');
+            container.innerHTML = '';
+            
+            if (Object.keys(employees).length === 0) {
+                container.innerHTML = `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <div class="item-details">
+                                <div class="item-name">${currentLanguage === 'ar' ? 'لا يوجد موظفين' : 'No employees'}</div>
+                                <div class="item-desc">${currentLanguage === 'ar' ? 'قم بإضافة موظف جديد' : 'Add a new employee'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            for (const employee in employees) {
+                const employeeElement = document.createElement('div');
+                employeeElement.className = 'list-item';
+                employeeElement.onclick = () => showEmployeeRecords(employee);
+                employeeElement.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name">${employee}</div>
+                            <div class="item-desc">${employees[employee].position} - ${employees[employee].salary.toFixed(2)} ${currentLanguage === 'ar' ? 'ر.س' : 'SAR'}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px; margin-left: 5px;" onclick="event.stopPropagation(); deleteEmployee('${employee}')">
+                            <i class="fas fa-trash"></i> ${currentLanguage === 'ar' ? 'حذف' : 'Delete'}
+                        </button>
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                `;
+                container.appendChild(employeeElement);
+            }
+        }
+
+        // حذف عميل
+        function deleteClient(clientName) {
+            if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف العميل "${clientName}"؟ سيتم حذف جميع سجلاته أيضًا.` : `Are you sure you want to delete client "${clientName}"? All their records will also be deleted.`)) {
+                delete clients[clientName];
+                saveData();
+                renderClients();
+                alert(currentLanguage === 'ar' ? 'تم حذف العميل بنجاح!' : 'Client deleted successfully!');
+            }
+        }
+
+        // حذف موظف
+        function deleteEmployee(employeeName) {
+            if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف الموظف "${employeeName}"؟ سيتم حذف جميع سجلاته أيضًا.` : `Are you sure you want to delete employee "${employeeName}"? All their records will also be deleted.`)) {
+                delete employees[employeeName];
+                saveData();
+                renderEmployees();
+                alert(currentLanguage === 'ar' ? 'تم حذف الموظف بنجاح!' : 'Employee deleted successfully!');
+            }
+        }
+
+        // حذف حساب العميل بالكامل
+        function deleteClientAccount() {
+            if (!currentClient) return;
+            
+            if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف حساب العميل "${currentClient}" بالكامل؟` : `Are you sure you want to completely delete client account "${currentClient}"?`)) {
+                delete clients[currentClient];
+                saveData();
+                showPage('clients');
+                alert(currentLanguage === 'ar' ? 'تم حذف حساب العميل بالكامل!' : 'Client account completely deleted!');
+            }
+        }
+
+        // حذف حساب الموظف بالكامل
+        function deleteEmployeeAccount() {
+            if (!currentEmployee) return;
+            
+            if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف حساب الموظف "${currentEmployee}" بالكامل؟` : `Are you sure you want to completely delete employee account "${currentEmployee}"?`)) {
+                delete employees[currentEmployee];
+                saveData();
+                showPage('employees');
+                alert(currentLanguage === 'ar' ? 'تم حذف حساب الموظف بالكامل!' : 'Employee account completely deleted!');
+            }
+        }
+
+        // حذف جميع البيانات
+        function deleteAllData() {
+            if (confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه.' : 'Are you sure you want to delete all data? This action cannot be undone.')) {
+                clients = {};
+                employees = {};
+                contacts = [];
+                saveData();
+                renderClients();
+                renderEmployees();
+                alert(currentLanguage === 'ar' ? 'تم حذف جميع البيانات بنجاح!' : 'All data deleted successfully!');
+            }
+        }
+
+        // عرض سجل العميل
+        function showClientRecords(clientName) {
+            currentClient = clientName;
+            document.getElementById('clientRecordsTitle').textContent = `${currentLanguage === 'ar' ? 'سجل العميل:' : 'Client Records:'} ${clientName}`;
+            showPage('client-records');
+            renderClientRecords();
+        }
+
+        // عرض سجل الموظف
+        function showEmployeeRecords(employeeName) {
+            currentEmployee = employeeName;
+            document.getElementById('employeeRecordsTitle').textContent = `${currentLanguage === 'ar' ? 'سجل الموظف:' : 'Employee Records:'} ${employeeName}`;
+            showPage('employee-records');
+            renderEmployeeRecords();
+        }
+
+        // عرض سجلات العميل
+        function renderClientRecords() {
+            if (!currentClient || !clients[currentClient]) return;
+            
+            const container = document.getElementById('clientRecordsTable');
+            container.innerHTML = '';
+            
+            const client = clients[currentClient];
+            let total = 0;
+            
+            if (client.records && client.records.length > 0) {
+                client.records.forEach((record, index) => {
+                    const points = Math.floor(record.value / 10);
+                    total += record.value;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${record.item}</td>
+                        <td>${record.value.toFixed(2)}</td>
+                        <td>${record.date}</td>
+                        <td>+${points}</td>
+                        <td>
+                            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="deleteClientRecord(${index})">
+                                <i class="fas fa-trash"></i> ${currentLanguage === 'ar' ? 'حذف' : 'Delete'}
+                            </button>
+                        </td>
+                    `;
+                    container.appendChild(row);
+                });
+            } else {
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 15px;">${currentLanguage === 'ar' ? 'لا توجد معاملات مسجلة' : 'No transactions recorded'}</td>
+                    </tr>
+                `;
+            }
+            
+            document.getElementById('clientTotal').textContent = `${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${total.toFixed(2)}`;
+        }
+
+        // عرض سجلات الموظف
+        function renderEmployeeRecords() {
+            if (!currentEmployee || !employees[currentEmployee]) return;
+            
+            const container = document.getElementById('employeeRecordsTable');
+            container.innerHTML = '';
+            
+            const employee = employees[currentEmployee];
+            let total = 0;
+            
+            if (employee.records && employee.records.length > 0) {
+                employee.records.forEach((record, index) => {
+                    total += record.value;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${record.item}</td>
+                        <td>${record.value.toFixed(2)}</td>
+                        <td>${record.date}</td>
+                        <td>-</td>
+                        <td>
+                            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="deleteEmployeeRecord(${index})">
+                                <i class="fas fa-trash"></i> ${currentLanguage === 'ar' ? 'حذف' : 'Delete'}
+                            </button>
+                        </td>
+                    `;
+                    container.appendChild(row);
+                });
+            } else {
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 15px;">${currentLanguage === 'ar' ? 'لا توجد معاملات مسجلة' : 'No transactions recorded'}</td>
+                    </tr>
+                `;
+            }
+            
+            document.getElementById('employeeTotal').textContent = `${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${total.toFixed(2)}`;
+        }
+
+        // إضافة سجل للعميل
+        function addClientRecord() {
+            if (!currentClient) return;
+            
+            const item = document.getElementById('itemName').value;
+            const value = parseFloat(document.getElementById('itemValue').value);
+            
+            if (!item || !value) {
+                alert(currentLanguage === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields');
+                return;
+            }
+            
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            const points = Math.floor(value / 10);
+            
+            if (!clients[currentClient].records) {
+                clients[currentClient].records = [];
+            }
+            
+            clients[currentClient].records.push({
+                item: item,
+                value: value,
+                date: dateStr
+            });
+            
+            clients[currentClient].totalSpent += value;
+            clients[currentClient].loyaltyPoints += points;
+            
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemValue').value = '';
+            
+            saveData();
+            renderClientRecords();
+            alert(currentLanguage === 'ar' ? 'تم إضافة المعاملة بنجاح!' : 'Transaction added successfully!');
+        }
+
+        // إضافة سجل للموظف
+        function addEmployeeRecord() {
+            if (!currentEmployee) return;
+            
+            const item = document.getElementById('employeeItemName').value;
+            const value = parseFloat(document.getElementById('employeeItemValue').value);
+            
+            if (!item || !value) {
+                alert(currentLanguage === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields');
+                return;
+            }
+            
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            
+            if (!employees[currentEmployee].records) {
+                employees[currentEmployee].records = [];
+            }
+            
+            employees[currentEmployee].records.push({
+                item: item,
+                value: value,
+                date: dateStr
+            });
+            
+            document.getElementById('employeeItemName').value = '';
+            document.getElementById('employeeItemValue').value = '';
+            
+            saveData();
+            renderEmployeeRecords();
+            alert(currentLanguage === 'ar' ? 'تم إضافة المعاملة بنجاح!' : 'Transaction added successfully!');
+        }
+
+        // حذف سجل العميل
+        function deleteClientRecord(index) {
+            if (!currentClient || !confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف هذه المعاملة؟' : 'Are you sure you want to delete this transaction?')) return;
+            
+            const record = clients[currentClient].records[index];
+            const points = Math.floor(record.value / 10);
+            
+            clients[currentClient].totalSpent -= record.value;
+            clients[currentClient].loyaltyPoints = Math.max(0, clients[currentClient].loyaltyPoints - points);
+            clients[currentClient].records.splice(index, 1);
+            
+            saveData();
+            renderClientRecords();
+            alert(currentLanguage === 'ar' ? 'تم حذف المعاملة بنجاح!' : 'Transaction deleted successfully!');
+        }
+
+        // حذف سجل الموظف
+        function deleteEmployeeRecord(index) {
+            if (!currentEmployee || !confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف هذه المعاملة؟' : 'Are you sure you want to delete this transaction?')) return;
+            
+            employees[currentEmployee].records.splice(index, 1);
+            saveData();
+            renderEmployeeRecords();
+            alert(currentLanguage === 'ar' ? 'تم حذف المعاملة بنجاح!' : 'Transaction deleted successfully!');
+        }
+
+        // إرسال كشف العميل عبر واتساب
+        function sendClientStatement(method) {
+            if (!currentClient) return;
+            
+            const client = clients[currentClient];
+            let message = currentLanguage === 'ar' ? 
+                `كشف حساب العميل: ${currentClient}\n` :
+                `Client Statement: ${currentClient}\n`;
+            
+            message += currentLanguage === 'ar' ? 
+                `رقم الهاتف: ${client.phone}\n` :
+                `Phone: ${client.phone}\n`;
+            
+            if (client.email) message += currentLanguage === 'ar' ? 
+                `البريد الإلكتروني: ${client.email}\n` :
+                `Email: ${client.email}\n`;
+            
+            message += currentLanguage === 'ar' ? 
+                `إجمالي المشتريات: ${client.totalSpent.toFixed(2)} ر.س\n` :
+                `Total Purchases: ${client.totalSpent.toFixed(2)} SAR\n`;
+            
+            message += currentLanguage === 'ar' ? 
+                `نقاط الولاء: ${client.loyaltyPoints} نقطة\n\n` :
+                `Loyalty Points: ${client.loyaltyPoints} points\n\n`;
+            
+            message += currentLanguage === 'ar' ? `التفاصيل:\n` : `Details:\n`;
+            
+            if (client.records && client.records.length > 0) {
+                client.records.forEach(record => {
+                    message += currentLanguage === 'ar' ? 
+                        `- ${record.item}: ${record.value.toFixed(2)} ر.س (${record.date})\n` :
+                        `- ${record.item}: ${record.value.toFixed(2)} SAR (${record.date})\n`;
+                });
+            } else {
+                message += currentLanguage === 'ar' ? 
+                    `لا توجد معاملات مسجلة\n` :
+                    `No transactions recorded\n`;
+            }
+            
+            message += currentLanguage === 'ar' ? 
+                `\nشكراً لتعاملكم معنا` :
+                `\nThank you for your business`;
+            
+            if (method === 'whatsapp') {
+                const phone = client.phone.replace(/\D/g, '');
+                const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                window.open(url, '_blank');
+            } else if (method === 'sms') {
+                alert(currentLanguage === 'ar' ? 
+                    `جاري إرسال رسالة نصية إلى ${client.phone}\n\n${message}` :
+                    `Sending SMS to ${client.phone}\n\n${message}`);
+                // في التطبيق الحقيقي، سيتم استخدام API لإرسال الرسائل النصية
+            }
+        }
+
+        // تحميل جهات الاتصال
+        function loadContacts() {
+            // لا نقوم بتحميل جهات اتصال افتراضية
+            // سيتم إضافة جهات الاتصال يدويًا من قبل المستخدم
+        }
+
+        // عرض جهات الاتصال
+        function renderContacts() {
+            const container = document.getElementById('contactsList');
+            container.innerHTML = '';
+            
+            if (contacts.length === 0) {
+                container.innerHTML = `
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <div class="contact-name">${currentLanguage === 'ar' ? 'لا توجد جهات اتصال' : 'No contacts'}</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            contacts.forEach((contact, index) => {
+                const contactElement = document.createElement('div');
+                contactElement.className = 'contact-item';
+                contactElement.onclick = () => selectContact(contact);
+                contactElement.innerHTML = `
+                    <div class="contact-avatar">${contact.name.charAt(0)}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-phone">${contact.phone}</div>
+                    </div>
+                    <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="event.stopPropagation(); deleteContact(${index})">
+                        <i class="fas fa-trash"></i> ${currentLanguage === 'ar' ? 'حذف' : 'Delete'}
+                    </button>
+                `;
+                container.appendChild(contactElement);
+            });
+        }
+
+        // فلترة جهات الاتصال
+        function filterContacts() {
+            const query = document.getElementById('contactSearch').value.toLowerCase();
+            const contactItems = document.querySelectorAll('.contact-item');
+            
+            contactItems.forEach(item => {
+                const name = item.querySelector('.contact-name').textContent.toLowerCase();
+                const phone = item.querySelector('.contact-phone').textContent.toLowerCase();
+                
+                if (name.includes(query) || phone.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // اختيار جهة اتصال
+        function selectContact(contact) {
+            document.getElementById('clientPhone').value = contact.phone;
+            document.getElementById('clientName').value = contact.name;
+            closeModal('contactsModal');
+            showClientModal();
+        }
+
+        // إضافة جهة اتصال جديدة
+        function addNewContact() {
+            const name = prompt(currentLanguage === 'ar' ? 'أدخل اسم جهة الاتصال:' : 'Enter contact name:');
+            if (name && name.trim()) {
+                const phone = prompt(currentLanguage === 'ar' ? 'أدخل رقم الهاتف:' : 'Enter phone number:');
+                if (phone && phone.trim()) {
+                    contacts.push({
+                        name: name,
+                        phone: phone
+                    });
+                    saveData();
+                    renderContacts();
+                    alert(currentLanguage === 'ar' ? 'تم إضافة جهة الاتصال بنجاح!' : 'Contact added successfully!');
+                }
+            }
+        }
+
+        // حذف جهة اتصال
+        function deleteContact(index) {
+            if (confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف جهة الاتصال هذه؟' : 'Are you sure you want to delete this contact?')) {
+                contacts.splice(index, 1);
+                saveData();
+                renderContacts();
+                alert(currentLanguage === 'ar' ? 'تم حذف جهة الاتصال بنجاح!' : 'Contact deleted successfully!');
+            }
+        }
+
+        // الوصول إلى جهات اتصال الجهاز
+        function accessDeviceContacts() {
+            if ('contacts' in navigator && 'select' in navigator.contacts) {
+                navigator.contacts.select(['name', 'tel'])
+                    .then(contacts => {
+                        if (contacts && contacts.length > 0) {
+                            const contact = contacts[0];
+                            alert(currentLanguage === 'ar' ? 
+                                `تم اختيار جهة الاتصال: ${contact.name} - ${contact.tel ? contact.tel[0] : 'لا يوجد رقم'}` :
+                                `Selected contact: ${contact.name} - ${contact.tel ? contact.tel[0] : 'No number'}`);
+                            
+                            // استخدام جهة الاتصال المختارة
+                            document.getElementById('clientPhone').value = contact.tel ? contact.tel[0] : '';
+                            document.getElementById('clientName').value = contact.name || '';
+                            
+                            // إظهار نافذة إضافة العميل
+                            showClientModal();
+                        } else {
+                            alert(currentLanguage === 'ar' ? 'لم يتم اختيار أي جهة اتصال' : 'No contact selected');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('خطأ في الوصول إلى جهات الاتصال:', error);
+                        alert(currentLanguage === 'ar' ? 
+                            'عذراً، لا يمكن الوصول إلى جهات اتصال الجهاز. تأكد من السماح للتطبيق بالوصول إلى جهات الاتصال.' :
+                            'Sorry, cannot access device contacts. Make sure to allow the app to access contacts.');
+                    });
+            } else {
+                alert(currentLanguage === 'ar' ? 
+                    'عذراً، متصفحك لا يدعم واجهة برمجة تطبيقات جهات الاتصال. يمكنك إضافة جهات الاتصال يدوياً.' :
+                    'Sorry, your browser does not support the Contacts API. You can add contacts manually.');
+            }
+        }
+
+        // الوصول إلى Google Drive
+        function accessDrive() {
+            alert(currentLanguage === 'ar' ? 'جاري الوصول إلى Google Drive...' : 'Accessing Google Drive...');
+            // في التطبيق الحقيقي، سيتم استخدام Google Drive API
+        }
+
+        // البحث في البيانات
+        function searchData() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (query.length > 2) {
+                alert(currentLanguage === 'ar' ? `جاري البحث عن: ${query}` : `Searching for: ${query}`);
+                // في التطبيق الحقيقي، سيتم البحث في جميع البيانات وعرض النتائج
+            }
+        }
+
+        // إنشاء تقرير
+        function generateReport(type) {
+            alert(currentLanguage === 'ar' ? `جاري إنشاء تقرير ${type}...` : `Generating ${type} report...`);
+        }
+
+        // إنشاء نسخة احتياطية
+        function createBackup() {
+            const backupData = {
+                clients: clients,
+                employees: employees,
+                contacts: contacts,
+                timestamp: new Date().toISOString()
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", currentLanguage === 'ar' ? "نسخة_احتياطية_المحاسب_الذكي.json" : "smart_accountant_backup.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            
+            alert(currentLanguage === 'ar' ? 'تم إنشاء النسخة الاحتياطية بنجاح!' : 'Backup created successfully!');
+        }
+
+        // استعادة نسخة احتياطية
+        function restoreBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    try {
+                        const backupData = JSON.parse(event.target.result);
+                        
+                        if (confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من استعادة النسخة الاحتياطية؟ سيتم استبدال جميع البيانات الحالية.' : 'Are you sure you want to restore the backup? All current data will be replaced.')) {
+                            clients = backupData.clients || {};
+                            employees = backupData.employees || {};
+                            contacts = backupData.contacts || [];
+                            
+                            saveData();
+                            renderClients();
+                            renderEmployees();
+                            alert(currentLanguage === 'ar' ? 'تم استعادة النسخة الاحتياطية بنجاح!' : 'Backup restored successfully!');
+                        }
+                    } catch (error) {
+                        alert(currentLanguage === 'ar' ? 'خطأ في استعادة النسخة الاحتياطية!' : 'Error restoring backup!');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // إظهار إشعار المطور
+        function showDeveloperNotification() {
+            document.getElementById('developerNotification').style.display = 'block';
+        }
+
+        // إغلاق إشعار المطور
+        function closeDeveloperNotification() {
+            document.getElementById('developerNotification').style.display = 'none';
+        }
+
+        // إضافة مستمع حدث لزر تبديل الوضع
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    </script>
+</body>
+</html>
