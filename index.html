@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المحاسب الذكي - Smart Accountant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -89,7 +91,7 @@
             position: relative;
         }
 
-        .developer-info {
+        .user-info {
             position: absolute;
             left: 15px;
             top: 50%;
@@ -100,7 +102,7 @@
             font-size: 11px;
         }
 
-        [dir="rtl"] .developer-info {
+        [dir="rtl"] .user-info {
             left: auto;
             right: 15px;
         }
@@ -607,7 +609,7 @@
         /* التبديل بين الوضع الداكن والفاتح */
         .theme-toggle {
             position: fixed;
-            top: 15px;
+            bottom: 80px;
             left: 15px;
             width: 40px;
             height: 40px;
@@ -630,7 +632,7 @@
         /* تبديل اللغة */
         .language-toggle {
             position: fixed;
-            top: 65px;
+            bottom: 130px;
             left: 15px;
             width: 40px;
             height: 40px;
@@ -885,7 +887,7 @@
                 margin: 15px 10px;
             }
             
-            .developer-info {
+            .user-info {
                 display: none;
             }
         }
@@ -965,15 +967,305 @@
         .developer-notification .btn {
             margin-top: 10px;
         }
+
+        /* أنماط الصفحات الجديدة */
+        .debt-type {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .debt-type-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .debt-type-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .transaction-items {
+            margin: 15px 0;
+        }
+        
+        .transaction-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .transaction-item input {
+            flex: 1;
+        }
+        
+        .transaction-summary {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--radius);
+            margin-top: 15px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .summary-total {
+            font-weight: bold;
+            border-top: 1px solid var(--border);
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+        
+        /* زر إضافة عنصر جديد في الفاتورة */
+        .add-item-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        /* زر إزالة عنصر من الفاتورة */
+        .remove-item-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* التاريخ الهجري والميلادي */
+        .date-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .hijri-date {
+            font-size: 14px;
+        }
+        
+        .gregorian-date {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* صفحة الحساب */
+        .account-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .account-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .account-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .account-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        .account-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 5px 0;
+            color: var(--primary);
+        }
+        
+        .account-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* أيقونات صغيرة */
+        .small-icon-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .small-icon-btn:hover {
+            background: rgba(67, 97, 238, 0.1);
+        }
+        
+        .small-icon-btn.whatsapp {
+            color: #25D366;
+        }
+        
+        .small-icon-btn.sms {
+            color: var(--info);
+        }
+        
+        .small-icon-btn.pdf {
+            color: var(--danger);
+        }
+        
+        .small-icon-btn.drive {
+            color: #4285F4;
+        }
+        
+        .small-icon-btn.backup {
+            color: var(--warning);
+        }
+
+        /* زر النسخ الاحتياطي التلقائي */
+        .auto-backup-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--light);
+            border-radius: var(--radius);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* تنبيهات */
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+        
+        .alert-info {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
     </style>
 </head>
 <body dir="rtl">
     <!-- شاشة تسجيل الدخول -->
     <div id="login-page" class="login-container">
+        <div class="theme-toggle" id="loginThemeToggle">
+            <i class="fas fa-moon" id="loginThemeIcon"></i>
+        </div>
+        
         <div class="login-header">
             <h1><i class="fas fa-calculator"></i> <span data-i18n="app_title">نظام المحاسب الذكي</span></h1>
             <p data-i18n="login_subtitle">سجل الدخول لبدء استخدام النظام المحاسبي المتكامل</p>
-            <div class="developer-info" data-i18n="developer_info">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</div>
+            <div class="user-info" data-i18n="developer_info">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</div>
         </div>
         <div class="login-body">
             <form id="loginForm">
@@ -1029,8 +1321,11 @@
 
         <!-- شريط الحالة -->
         <div class="status-bar">
-            <div class="developer-info" data-i18n="developer_info">مطور بواسطة: عبد الوهاب عبد الواحد الريمي</div>
-            <div class="date" id="currentDate">السبت، ١٨ أكتوبر ٢٠٢٥</div>
+            <div class="user-info" id="userInfo">مرحباً، <span id="userName">مستخدم</span></div>
+            <div class="date-container">
+                <div class="date" id="currentDate">السبت، ١٨ أكتوبر ٢٠٢٥</div>
+                <div class="gregorian-date" id="currentGregorianDate">Saturday, October 18, 2025</div>
+            </div>
             <div class="time" id="currentTime">10:30 ص</div>
         </div>
 
@@ -1157,6 +1452,98 @@
             </div>
         </div>
 
+        <!-- صفحة الحساب -->
+        <div id="account-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('home')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" data-i18n="account">الحساب</div>
+            </div>
+
+            <div class="account-grid">
+                <div class="account-card" onclick="showProfileModal()">
+                    <div class="account-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="account-value" id="profileName">مستخدم</div>
+                    <div class="account-label" data-i18n="profile">الملف الشخصي</div>
+                </div>
+                <div class="account-card" onclick="showSubscriptionModal()">
+                    <div class="account-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="account-value" data-i18n="free">مجاني</div>
+                    <div class="account-label" data-i18n="subscription">الاشتراك</div>
+                </div>
+                <div class="account-card" onclick="showSecurityModal()">
+                    <div class="account-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="account-value" data-i18n="active">نشط</div>
+                    <div class="account-label" data-i18n="security">الأمان</div>
+                </div>
+                <div class="account-card" onclick="showNotificationsModal()">
+                    <div class="account-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="account-value" data-i18n="on">تشغيل</div>
+                    <div class="account-label" data-i18n="notifications">الإشعارات</div>
+                </div>
+            </div>
+
+            <div class="list-container">
+                <div class="list-item" onclick="showProfileModal()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="edit_profile">تعديل الملف الشخصي</div>
+                            <div class="item-desc" data-i18n="edit_profile_desc">تعديل معلومات حسابك</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="showChangePasswordModal()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="change_password">تغيير كلمة المرور</div>
+                            <div class="item-desc" data-i18n="change_password_desc">تحديث كلمة المرور الخاصة بك</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="showPrivacyModal()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="privacy">الخصوصية</div>
+                            <div class="item-desc" data-i18n="privacy_desc">إعدادات الخصوصية والأمان</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="showHelpModal()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="help_support">المساعدة والدعم</div>
+                            <div class="item-desc" data-i18n="help_support_desc">الحصول على المساعدة والدعم الفني</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+            </div>
+        </div>
+
         <!-- صفحة العملاء -->
         <div id="clients-page" class="page">
             <div class="page-header">
@@ -1235,6 +1622,9 @@
                         </button>
                         <button class="btn btn-info" onclick="sendClientStatement('sms')">
                             <i class="fas fa-sms"></i> <span data-i18n="send_sms">إرسال رسالة نصية</span>
+                        </button>
+                        <button class="btn btn-warning" onclick="showPaidAmountModal()">
+                            <i class="fas fa-money-bill-wave"></i> <span data-i18n="add_paid_amount">إضافة مبلغ مسلم</span>
                         </button>
                         <button class="btn btn-danger" onclick="deleteClientAccount()">
                             <i class="fas fa-trash"></i> <span data-i18n="delete_account">حذف الحساب</span>
@@ -1320,6 +1710,42 @@
             </div>
         </div>
 
+        <!-- صفحة الموردين -->
+        <div id="suppliers-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('home')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" data-i18n="suppliers">الموردين</div>
+            </div>
+
+            <button class="btn btn-block" onclick="showSupplierModal()">
+                <i class="fas fa-plus"></i> <span data-i18n="add_new_supplier">إضافة مورد جديد</span>
+            </button>
+
+            <div class="list-container" id="suppliersList">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+
+        <!-- صفحة الديون -->
+        <div id="debts-page" class="page">
+            <div class="page-header">
+                <div class="back-button" onclick="showPage('home')">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="page-title" data-i18n="debts">الديون</div>
+            </div>
+
+            <button class="btn btn-block" onclick="showDebtModal()">
+                <i class="fas fa-plus"></i> <span data-i18n="add_new_debt">إضافة دين جديد</span>
+            </button>
+
+            <div class="list-container" id="debtsList">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+
         <!-- صفحة التقارير -->
         <div id="reports-page" class="page">
             <div class="page-header">
@@ -1390,6 +1816,30 @@
                 <div class="page-title" data-i18n="settings">الإعدادات</div>
             </div>
 
+            <!-- النسخ الاحتياطي التلقائي -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-robot"></i> <span data-i18n="auto_backup">النسخ الاحتياطي التلقائي</span>
+                </div>
+                <div class="card-body">
+                    <div class="auto-backup-toggle">
+                        <div>
+                            <div class="form-label" data-i18n="enable_auto_backup">تفعيل النسخ الاحتياطي التلقائي</div>
+                            <div class="item-desc" data-i18n="auto_backup_desc">سيتم حفظ نسخة احتياطية تلقائياً كل 24 ساعة</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoBackupToggle" onchange="toggleAutoBackup()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-i18n="auto_backup_info">آخر نسخة احتياطية: <span id="lastBackupTime">لم يتم بعد</span></span>
+                    </div>
+                </div>
+            </div>
+
             <div class="list-container">
                 <div class="list-item" onclick="toggleTheme()">
                     <div class="item-info">
@@ -1399,6 +1849,18 @@
                         <div class="item-details">
                             <div class="item-name" data-i18n="appearance">المظهر</div>
                             <div class="item-desc" data-i18n="appearance_desc">تبديل الوضع الداكن/الفاتح</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="toggleLanguage()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="language">اللغة</div>
+                            <div class="item-desc" data-i18n="language_desc">تبديل بين العربية والإنجليزية</div>
                         </div>
                     </div>
                     <i class="fas fa-chevron-left"></i>
@@ -1427,26 +1889,38 @@
                     </div>
                     <i class="fas fa-chevron-left"></i>
                 </div>
-                <div class="list-item" onclick="accessDrive()">
+                <div class="list-item" onclick="backupToDrive()">
                     <div class="item-info">
                         <div class="item-icon">
                             <i class="fab fa-google-drive"></i>
                         </div>
                         <div class="item-details">
-                            <div class="item-name" data-i18n="cloud_storage">التخزين السحابي</div>
-                            <div class="item-desc" data-i18n="cloud_storage_desc">الوصول إلى Google Drive</div>
+                            <div class="item-name" data-i18n="backup_to_drive">نسخ احتياطي إلى Drive</div>
+                            <div class="item-desc" data-i18n="backup_to_drive_desc">حفظ نسخة احتياطية في Google Drive</div>
                         </div>
                     </div>
                     <i class="fas fa-chevron-left"></i>
                 </div>
-                <div class="list-item" onclick="createBackup()">
+                <div class="list-item" onclick="backupToDevice()">
                     <div class="item-info">
                         <div class="item-icon">
                             <i class="fas fa-download"></i>
                         </div>
                         <div class="item-details">
-                            <div class="item-name" data-i18n="backup">نسخ احتياطي</div>
-                            <div class="item-desc" data-i18n="backup_desc">إنشاء نسخة احتياطية من البيانات</div>
+                            <div class="item-name" data-i18n="backup_to_device">نسخ احتياطي إلى الجهاز</div>
+                            <div class="item-desc" data-i18n="backup_to_device_desc">تحميل نسخة احتياطية إلى جهازك</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="list-item" onclick="exportToPDF()">
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name" data-i18n="export_pdf">تصدير إلى PDF</div>
+                            <div class="item-desc" data-i18n="export_pdf_desc">تصدير البيانات إلى ملف PDF</div>
                         </div>
                     </div>
                     <i class="fas fa-chevron-left"></i>
@@ -1500,6 +1974,10 @@
                 <i class="fas fa-home nav-icon"></i>
                 <span data-i18n="home">الرئيسية</span>
             </div>
+            <div class="nav-item" onclick="showPage('account')">
+                <i class="fas fa-user nav-icon"></i>
+                <span data-i18n="account">الحساب</span>
+            </div>
             <div class="nav-item" onclick="showPage('clients')">
                 <i class="fas fa-users nav-icon"></i>
                 <span data-i18n="clients">العملاء</span>
@@ -1511,10 +1989,6 @@
             <div class="nav-item" onclick="showPage('reports')">
                 <i class="fas fa-chart-bar nav-icon"></i>
                 <span data-i18n="reports">التقارير</span>
-            </div>
-            <div class="nav-item" onclick="showPage('settings')">
-                <i class="fas fa-cog nav-icon"></i>
-                <span data-i18n="settings">الإعدادات</span>
             </div>
         </div>
     </div>
@@ -1578,6 +2052,234 @@
         </div>
     </div>
 
+    <!-- نافذة إضافة مورد -->
+    <div class="modal" id="supplierModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="add_new_supplier">إضافة مورد جديد</div>
+                <button class="modal-close" onclick="closeModal('supplierModal')">&times;</button>
+            </div>
+            <form id="supplierForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="supplier_name">اسم المورد</label>
+                    <input type="text" class="form-control" id="supplierName" data-i18n-placeholder="enter_supplier_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="phone">رقم الهاتف</label>
+                    <input type="text" class="form-control" id="supplierPhone" data-i18n-placeholder="enter_phone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="email">البريد الإلكتروني</label>
+                    <input type="email" class="form-control" id="supplierEmail" data-i18n-placeholder="enter_email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="address">العنوان</label>
+                    <textarea class="form-control" id="supplierAddress" data-i18n-placeholder="enter_address" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="products">المنتجات/الخدمات</label>
+                    <textarea class="form-control" id="supplierProducts" data-i18n-placeholder="enter_products" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="save_supplier">حفظ المورد</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة دين -->
+    <div class="modal" id="debtModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="add_new_debt">إضافة دين جديد</div>
+                <button class="modal-close" onclick="closeModal('debtModal')">&times;</button>
+            </div>
+            <form id="debtForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="debt_type">نوع الدين</label>
+                    <div class="debt-type">
+                        <div class="debt-type-btn active" data-type="debtor" onclick="selectDebtType('debtor')">
+                            <span data-i18n="debtor">مدين</span>
+                        </div>
+                        <div class="debt-type-btn" data-type="creditor" onclick="selectDebtType('creditor')">
+                            <span data-i18n="creditor">دائن</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="person_name">اسم الشخص</label>
+                    <input type="text" class="form-control" id="debtPersonName" data-i18n-placeholder="enter_person_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="phone">رقم الهاتف</label>
+                    <input type="text" class="form-control" id="debtPhone" data-i18n-placeholder="enter_phone">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="amount">المبلغ</label>
+                    <input type="number" class="form-control" id="debtAmount" data-i18n-placeholder="enter_amount" required step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="due_date">تاريخ الاستحقاق</label>
+                    <input type="date" class="form-control" id="debtDueDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="description">الوصف</label>
+                    <textarea class="form-control" id="debtDescription" data-i18n-placeholder="enter_description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="save_debt">حفظ الدين</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة فاتورة -->
+    <div class="modal" id="invoiceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="new_invoice">فاتورة جديدة</div>
+                <button class="modal-close" onclick="closeModal('invoiceModal')">&times;</button>
+            </div>
+            <form id="invoiceForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="client_name">اسم العميل</label>
+                    <input type="text" class="form-control" id="invoiceClient" data-i18n-placeholder="enter_client_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="invoice_date">تاريخ الفاتورة</label>
+                    <input type="date" class="form-control" id="invoiceDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" data-i18n="items">العناصر</label>
+                    <div class="transaction-items" id="invoiceItems">
+                        <div class="transaction-item">
+                            <input type="text" class="form-control" placeholder="اسم الصنف" data-i18n-placeholder="item_name">
+                            <input type="number" class="form-control" placeholder="الكمية" data-i18n-placeholder="quantity" step="1" min="1" value="1">
+                            <input type="number" class="form-control" placeholder="السعر" data-i18n-placeholder="price" step="0.01" min="0">
+                            <button type="button" class="remove-item-btn" onclick="removeInvoiceItem(this)" style="display:none;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-item-btn" onclick="addInvoiceItem()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                
+                <div class="transaction-summary">
+                    <div class="summary-row">
+                        <span data-i18n="subtotal">المجموع الفرعي:</span>
+                        <span id="invoiceSubtotal">0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span data-i18n="tax">الضريبة (15%):</span>
+                        <span id="invoiceTax">0.00</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span data-i18n="total">الإجمالي:</span>
+                        <span id="invoiceTotal">0.00</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-block" data-i18n="save_invoice">حفظ الفاتورة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة سند -->
+    <div class="modal" id="receiptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="new_receipt">سند جديد</div>
+                <button class="modal-close" onclick="closeModal('receiptModal')">&times;</button>
+            </div>
+            <form id="receiptForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="receipt_type">نوع السند</label>
+                    <select class="form-control" id="receiptType" required>
+                        <option value="cash" data-i18n="cash_receipt">سند قبض</option>
+                        <option value="payment" data-i18n="payment_receipt">سند صرف</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="receiptPersonLabel" data-i18n="client_name">اسم العميل</label>
+                    <input type="text" class="form-control" id="receiptPerson" data-i18n-placeholder="enter_client_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="amount">المبلغ</label>
+                    <input type="number" class="form-control" id="receiptAmount" data-i18n-placeholder="enter_amount" required step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="description">الوصف</label>
+                    <textarea class="form-control" id="receiptDescription" data-i18n-placeholder="enter_description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="receipt_date">تاريخ السند</label>
+                    <input type="date" class="form-control" id="receiptDate" required>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="save_receipt">حفظ السند</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة حوالة -->
+    <div class="modal" id="transferModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="new_transfer">حوالة جديدة</div>
+                <button class="modal-close" onclick="closeModal('transferModal')">&times;</button>
+            </div>
+            <form id="transferForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="sender">المرسل</label>
+                    <input type="text" class="form-control" id="transferSender" data-i18n-placeholder="enter_sender_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="receiver">المستلم</label>
+                    <input type="text" class="form-control" id="transferReceiver" data-i18n-placeholder="enter_receiver_name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="amount">المبلغ</label>
+                    <input type="number" class="form-control" id="transferAmount" data-i18n-placeholder="enter_amount" required step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="transfer_date">تاريخ الحوالة</label>
+                    <input type="date" class="form-control" id="transferDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="description">الوصف</label>
+                    <textarea class="form-control" id="transferDescription" data-i18n-placeholder="enter_description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="save_transfer">حفظ الحوالة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة معاملة -->
+    <div class="modal" id="transactionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="new_transaction">معاملة جديدة</div>
+                <button class="modal-close" onclick="closeModal('transactionModal')">&times;</button>
+            </div>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="transaction_type">نوع المعاملة</label>
+                    <select class="form-control" id="transactionType" required onchange="changeTransactionType()">
+                        <option value="invoice" data-i18n="invoice">فاتورة</option>
+                        <option value="receipt" data-i18n="receipt">سند</option>
+                        <option value="transfer" data-i18n="transfer">حوالة</option>
+                        <option value="debt" data-i18n="debt">دين</option>
+                    </select>
+                </div>
+                
+                <!-- محتوى ديناميكي حسب نوع المعاملة -->
+                <div id="transactionContent">
+                    <!-- سيتم ملؤها ديناميكياً -->
+                </div>
+                
+                <button type="submit" class="btn btn-block" data-i18n="save_transaction">حفظ المعاملة</button>
+            </form>
+        </div>
+    </div>
+
     <!-- نافذة جهات الاتصال -->
     <div class="modal contacts-modal" id="contactsModal">
         <div class="modal-content">
@@ -1631,6 +2333,40 @@
         </div>
     </div>
 
+    <!-- نافذة إضافة مبلغ مسلم -->
+    <div class="modal" id="paidAmountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="add_paid_amount">إضافة مبلغ مسلم</div>
+                <button class="modal-close" onclick="closeModal('paidAmountModal')">&times;</button>
+            </div>
+            <form id="paidAmountForm">
+                <div class="form-group">
+                    <label class="form-label" data-i18n="paid_amount">المبلغ المسلم</label>
+                    <input type="number" class="form-control" id="paidAmount" data-i18n-placeholder="enter_paid_amount" required step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="payment_date">تاريخ السداد</label>
+                    <input type="date" class="form-control" id="paymentDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="payment_method">طريقة السداد</label>
+                    <select class="form-control" id="paymentMethod" required>
+                        <option value="cash" data-i18n="cash">نقدي</option>
+                        <option value="bank" data-i18n="bank_transfer">تحويل بنكي</option>
+                        <option value="check" data-i18n="check">شيك</option>
+                        <option value="other" data-i18n="other">أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-i18n="description">الوصف</label>
+                    <textarea class="form-control" id="paidAmountDescription" data-i18n-placeholder="enter_description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-block" data-i18n="save_paid_amount">حفظ المبلغ المسلم</button>
+            </form>
+        </div>
+    </div>
+
     <!-- إشعار المطور -->
     <div class="developer-notification" id="developerNotification" style="display: none;">
         <h3><i class="fas fa-code"></i> <span data-i18n="developer_info">معلومات المطور</span></h3>
@@ -1650,6 +2386,16 @@
         let currentClient = null;
         let currentEmployee = null;
         let currentLanguage = 'ar';
+        let autoBackupEnabled = false;
+        let autoBackupInterval = null;
+
+        // البيانات الجديدة
+        let debts = {};
+        let suppliers = {};
+        let invoices = [];
+        let receipts = [];
+        let transfers = [];
+        let paidAmounts = {};
 
         // ترجمة النصوص
         const translations = {
@@ -1722,6 +2468,16 @@
                 "send_whatsapp": "إرسال عبر واتساب",
                 "send_sms": "إرسال رسالة نصية",
                 "delete_account": "حذف الحساب",
+                "add_paid_amount": "إضافة مبلغ مسلم",
+                "paid_amount": "المبلغ المسلم",
+                "enter_paid_amount": "أدخل المبلغ المسلم",
+                "payment_date": "تاريخ السداد",
+                "payment_method": "طريقة السداد",
+                "cash": "نقدي",
+                "bank_transfer": "تحويل بنكي",
+                "check": "شيك",
+                "other": "أخرى",
+                "save_paid_amount": "حفظ المبلغ المسلم",
                 
                 // الموظفين
                 "add_new_employee": "إضافة موظف جديد",
@@ -1733,6 +2489,60 @@
                 "enter_position": "أدخل المسمى الوظيفي",
                 "save_employee": "حفظ الموظف",
                 "employee_records": "سجل الموظف",
+                
+                // الموردين
+                "add_new_supplier": "إضافة مورد جديد",
+                "supplier_name": "اسم المورد",
+                "enter_supplier_name": "أدخل اسم المورد",
+                "products": "المنتجات/الخدمات",
+                "enter_products": "أدخل المنتجات أو الخدمات",
+                "save_supplier": "حفظ المورد",
+                
+                // الديون
+                "add_new_debt": "إضافة دين جديد",
+                "debt_type": "نوع الدين",
+                "debtor": "مدين",
+                "creditor": "دائن",
+                "person_name": "اسم الشخص",
+                "enter_person_name": "أدخل اسم الشخص",
+                "amount": "المبلغ",
+                "enter_amount": "أدخل المبلغ",
+                "due_date": "تاريخ الاستحقاق",
+                "description": "الوصف",
+                "enter_description": "أدخل الوصف",
+                "save_debt": "حفظ الدين",
+                
+                // الفواتير
+                "new_invoice": "فاتورة جديدة",
+                "invoice_date": "تاريخ الفاتورة",
+                "items": "العناصر",
+                "quantity": "الكمية",
+                "price": "السعر",
+                "subtotal": "المجموع الفرعي",
+                "tax": "الضريبة",
+                "save_invoice": "حفظ الفاتورة",
+                
+                // السندات
+                "new_receipt": "سند جديد",
+                "receipt_type": "نوع السند",
+                "cash_receipt": "سند قبض",
+                "payment_receipt": "سند صرف",
+                "receipt_date": "تاريخ السند",
+                "save_receipt": "حفظ السند",
+                
+                // الحوالات
+                "new_transfer": "حوالة جديدة",
+                "sender": "المرسل",
+                "enter_sender_name": "أدخل اسم المرسل",
+                "receiver": "المستلم",
+                "enter_receiver_name": "أدخل اسم المستلم",
+                "transfer_date": "تاريخ الحوالة",
+                "save_transfer": "حفظ الحوالة",
+                
+                // المعاملات
+                "new_transaction": "معاملة جديدة",
+                "transaction_type": "نوع المعاملة",
+                "save_transaction": "حفظ المعاملة",
                 
                 // التقارير
                 "reports": "التقارير",
@@ -1749,6 +2559,8 @@
                 "settings": "الإعدادات",
                 "appearance": "المظهر",
                 "appearance_desc": "تبديل الوضع الداكن/الفاتح",
+                "language": "اللغة",
+                "language_desc": "تبديل بين العربية والإنجليزية",
                 "device_contacts": "جهات اتصال الجهاز",
                 "device_contacts_desc": "الوصول إلى جهات اتصال جهازك",
                 "saved_contacts": "جهات الاتصال المحفوظة",
@@ -1757,6 +2569,16 @@
                 "cloud_storage_desc": "الوصول إلى Google Drive",
                 "backup": "نسخ احتياطي",
                 "backup_desc": "إنشاء نسخة احتياطية من البيانات",
+                "backup_to_drive": "نسخ احتياطي إلى Drive",
+                "backup_to_drive_desc": "حفظ نسخة احتياطية في Google Drive",
+                "backup_to_device": "نسخ احتياطي إلى الجهاز",
+                "backup_to_device_desc": "تحميل نسخة احتياطية إلى جهازك",
+                "export_pdf": "تصدير إلى PDF",
+                "export_pdf_desc": "تصدير البيانات إلى ملف PDF",
+                "auto_backup": "النسخ الاحتياطي التلقائي",
+                "enable_auto_backup": "تفعيل النسخ الاحتياطي التلقائي",
+                "auto_backup_desc": "سيتم حفظ نسخة احتياطية تلقائياً كل 24 ساعة",
+                "auto_backup_info": "آخر نسخة احتياطية:",
                 "restore_data": "استعادة بيانات",
                 "restore_data_desc": "استعادة البيانات من نسخة احتياطية",
                 "delete_all_data": "حذف جميع البيانات",
@@ -1781,7 +2603,25 @@
                 "smart_accountant": "نظام المحاسب الذكي المتكامل",
                 
                 // التنقل
-                "home": "الرئيسية"
+                "home": "الرئيسية",
+                "account": "الحساب",
+                
+                // صفحة الحساب
+                "profile": "الملف الشخصي",
+                "subscription": "الاشتراك",
+                "security": "الأمان",
+                "notifications": "الإشعارات",
+                "free": "مجاني",
+                "active": "نشط",
+                "on": "تشغيل",
+                "edit_profile": "تعديل الملف الشخصي",
+                "edit_profile_desc": "تعديل معلومات حسابك",
+                "change_password": "تغيير كلمة المرور",
+                "change_password_desc": "تحديث كلمة المرور الخاصة بك",
+                "privacy": "الخصوصية",
+                "privacy_desc": "إعدادات الخصوصية والأمان",
+                "help_support": "المساعدة والدعم",
+                "help_support_desc": "الحصول على المساعدة والدعم الفني"
             },
             en: {
                 // General texts
@@ -1852,6 +2692,16 @@
                 "send_whatsapp": "Send via WhatsApp",
                 "send_sms": "Send SMS",
                 "delete_account": "Delete Account",
+                "add_paid_amount": "Add Paid Amount",
+                "paid_amount": "Paid Amount",
+                "enter_paid_amount": "Enter paid amount",
+                "payment_date": "Payment Date",
+                "payment_method": "Payment Method",
+                "cash": "Cash",
+                "bank_transfer": "Bank Transfer",
+                "check": "Check",
+                "other": "Other",
+                "save_paid_amount": "Save Paid Amount",
                 
                 // Employees
                 "add_new_employee": "Add New Employee",
@@ -1863,6 +2713,60 @@
                 "enter_position": "Enter position",
                 "save_employee": "Save Employee",
                 "employee_records": "Employee Records",
+                
+                // Suppliers
+                "add_new_supplier": "Add New Supplier",
+                "supplier_name": "Supplier Name",
+                "enter_supplier_name": "Enter supplier name",
+                "products": "Products/Services",
+                "enter_products": "Enter products or services",
+                "save_supplier": "Save Supplier",
+                
+                // Debts
+                "add_new_debt": "Add New Debt",
+                "debt_type": "Debt Type",
+                "debtor": "Debtor",
+                "creditor": "Creditor",
+                "person_name": "Person Name",
+                "enter_person_name": "Enter person name",
+                "amount": "Amount",
+                "enter_amount": "Enter amount",
+                "due_date": "Due Date",
+                "description": "Description",
+                "enter_description": "Enter description",
+                "save_debt": "Save Debt",
+                
+                // Invoices
+                "new_invoice": "New Invoice",
+                "invoice_date": "Invoice Date",
+                "items": "Items",
+                "quantity": "Quantity",
+                "price": "Price",
+                "subtotal": "Subtotal",
+                "tax": "Tax",
+                "save_invoice": "Save Invoice",
+                
+                // Receipts
+                "new_receipt": "New Receipt",
+                "receipt_type": "Receipt Type",
+                "cash_receipt": "Cash Receipt",
+                "payment_receipt": "Payment Receipt",
+                "receipt_date": "Receipt Date",
+                "save_receipt": "Save Receipt",
+                
+                // Transfers
+                "new_transfer": "New Transfer",
+                "sender": "Sender",
+                "enter_sender_name": "Enter sender name",
+                "receiver": "Receiver",
+                "enter_receiver_name": "Enter receiver name",
+                "transfer_date": "Transfer Date",
+                "save_transfer": "Save Transfer",
+                
+                // Transactions
+                "new_transaction": "New Transaction",
+                "transaction_type": "Transaction Type",
+                "save_transaction": "Save Transaction",
                 
                 // Reports
                 "reports": "Reports",
@@ -1879,6 +2783,8 @@
                 "settings": "Settings",
                 "appearance": "Appearance",
                 "appearance_desc": "Toggle dark/light mode",
+                "language": "Language",
+                "language_desc": "Toggle between Arabic and English",
                 "device_contacts": "Device Contacts",
                 "device_contacts_desc": "Access your device contacts",
                 "saved_contacts": "Saved Contacts",
@@ -1887,6 +2793,16 @@
                 "cloud_storage_desc": "Access Google Drive",
                 "backup": "Backup",
                 "backup_desc": "Create data backup",
+                "backup_to_drive": "Backup to Drive",
+                "backup_to_drive_desc": "Save backup to Google Drive",
+                "backup_to_device": "Backup to Device",
+                "backup_to_device_desc": "Download backup to your device",
+                "export_pdf": "Export to PDF",
+                "export_pdf_desc": "Export data to PDF file",
+                "auto_backup": "Auto Backup",
+                "enable_auto_backup": "Enable Auto Backup",
+                "auto_backup_desc": "A backup will be automatically saved every 24 hours",
+                "auto_backup_info": "Last backup:",
                 "restore_data": "Restore Data",
                 "restore_data_desc": "Restore data from backup",
                 "delete_all_data": "Delete All Data",
@@ -1911,7 +2827,25 @@
                 "smart_accountant": "Smart Accountant Integrated System",
                 
                 // Navigation
-                "home": "Home"
+                "home": "Home",
+                "account": "Account",
+                
+                // Account page
+                "profile": "Profile",
+                "subscription": "Subscription",
+                "security": "Security",
+                "notifications": "Notifications",
+                "free": "Free",
+                "active": "Active",
+                "on": "On",
+                "edit_profile": "Edit Profile",
+                "edit_profile_desc": "Edit your account information",
+                "change_password": "Change Password",
+                "change_password_desc": "Update your password",
+                "privacy": "Privacy",
+                "privacy_desc": "Privacy and security settings",
+                "help_support": "Help & Support",
+                "help_support_desc": "Get help and technical support"
             }
         };
 
@@ -1929,18 +2863,146 @@
             initTheme();
             initLanguage();
             checkLoginStatus();
+            initAutoBackup();
             
             // إضافة مستمعات الأحداث للنماذج
             document.getElementById('loginForm').addEventListener('submit', login);
             document.getElementById('registerForm').addEventListener('submit', register);
             document.getElementById('clientForm').addEventListener('submit', addClient);
             document.getElementById('employeeForm').addEventListener('submit', addEmployee);
+            document.getElementById('supplierForm').addEventListener('submit', addSupplier);
+            document.getElementById('debtForm').addEventListener('submit', addDebt);
+            document.getElementById('invoiceForm').addEventListener('submit', addInvoice);
+            document.getElementById('receiptForm').addEventListener('submit', addReceipt);
+            document.getElementById('transferForm').addEventListener('submit', addTransfer);
+            document.getElementById('transactionForm').addEventListener('submit', addTransaction);
+            document.getElementById('paidAmountForm').addEventListener('submit', addPaidAmount);
+            
+            // إضافة مستمعات الأحداث للعناصر الديناميكية
+            document.getElementById('receiptType').addEventListener('change', updateReceiptLabels);
+            document.getElementById('transactionType').addEventListener('change', changeTransactionType);
             
             // إضافة مستمع للبحث
             document.getElementById('searchInput').addEventListener('input', searchData);
             
+            // تهيئة الوضع الداكن/الفاتح في صفحة تسجيل الدخول
+            initLoginTheme();
+            
             // عرض إشعار المطور عند الدخول
             setTimeout(showDeveloperNotification, 1000);
+        }
+
+        // تحميل البيانات
+        function loadData() {
+            if(localStorage.getItem('clients')) {
+                clients = JSON.parse(localStorage.getItem('clients'));
+            }
+            
+            if(localStorage.getItem('employees')) {
+                employees = JSON.parse(localStorage.getItem('employees'));
+            }
+            
+            if(localStorage.getItem('contacts')) {
+                contacts = JSON.parse(localStorage.getItem('contacts'));
+            }
+            
+            if(localStorage.getItem('debts')) {
+                debts = JSON.parse(localStorage.getItem('debts'));
+            }
+            
+            if(localStorage.getItem('suppliers')) {
+                suppliers = JSON.parse(localStorage.getItem('suppliers'));
+            }
+            
+            if(localStorage.getItem('invoices')) {
+                invoices = JSON.parse(localStorage.getItem('invoices'));
+            }
+            
+            if(localStorage.getItem('receipts')) {
+                receipts = JSON.parse(localStorage.getItem('receipts'));
+            }
+            
+            if(localStorage.getItem('transfers')) {
+                transfers = JSON.parse(localStorage.getItem('transfers'));
+            }
+            
+            if(localStorage.getItem('paidAmounts')) {
+                paidAmounts = JSON.parse(localStorage.getItem('paidAmounts'));
+            }
+            
+            if(localStorage.getItem('autoBackupEnabled')) {
+                autoBackupEnabled = JSON.parse(localStorage.getItem('autoBackupEnabled'));
+                document.getElementById('autoBackupToggle').checked = autoBackupEnabled;
+            }
+            
+            if(localStorage.getItem('lastBackupTime')) {
+                document.getElementById('lastBackupTime').textContent = localStorage.getItem('lastBackupTime');
+            }
+        }
+
+        // حفظ البيانات
+        function saveData() {
+            localStorage.setItem('clients', JSON.stringify(clients));
+            localStorage.setItem('employees', JSON.stringify(employees));
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            localStorage.setItem('debts', JSON.stringify(debts));
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            localStorage.setItem('receipts', JSON.stringify(receipts));
+            localStorage.setItem('transfers', JSON.stringify(transfers));
+            localStorage.setItem('paidAmounts', JSON.stringify(paidAmounts));
+            localStorage.setItem('autoBackupEnabled', JSON.stringify(autoBackupEnabled));
+            
+            updateStats();
+            
+            // محاكاة الحفظ في Google Drive
+            if (currentUser && currentUser.type !== 'guest') {
+                saveToDrive();
+            }
+        }
+
+        // محاكاة الحفظ في Google Drive
+        function saveToDrive() {
+            console.log('جاري حفظ البيانات في Google Drive...');
+            // في التطبيق الحقيقي، سيتم استخدام Google Drive API
+        }
+
+        // تهيئة النسخ الاحتياطي التلقائي
+        function initAutoBackup() {
+            if (autoBackupEnabled) {
+                startAutoBackup();
+            }
+        }
+
+        // تبديل النسخ الاحتياطي التلقائي
+        function toggleAutoBackup() {
+            autoBackupEnabled = document.getElementById('autoBackupToggle').checked;
+            localStorage.setItem('autoBackupEnabled', JSON.stringify(autoBackupEnabled));
+            
+            if (autoBackupEnabled) {
+                startAutoBackup();
+                showAlert(currentLanguage === 'ar' ? 'تم تفعيل النسخ الاحتياطي التلقائي' : 'Auto backup enabled', 'success');
+            } else {
+                stopAutoBackup();
+                showAlert(currentLanguage === 'ar' ? 'تم إيقاف النسخ الاحتياطي التلقائي' : 'Auto backup disabled', 'info');
+            }
+        }
+
+        // بدء النسخ الاحتياطي التلقائي
+        function startAutoBackup() {
+            // نسخ احتياطي كل 24 ساعة (86400000 مللي ثانية)
+            autoBackupInterval = setInterval(function() {
+                createBackup();
+                showAlert(currentLanguage === 'ar' ? 'تم إنشاء نسخة احتياطية تلقائية' : 'Automatic backup created', 'success');
+            }, 86400000);
+        }
+
+        // إيقاف النسخ الاحتياطي التلقائي
+        function stopAutoBackup() {
+            if (autoBackupInterval) {
+                clearInterval(autoBackupInterval);
+                autoBackupInterval = null;
+            }
         }
 
         // تهيئة اللغة
@@ -2008,10 +3070,21 @@
         function showMainApp() {
             document.getElementById('login-page').style.display = 'none';
             document.getElementById('main-app').style.display = 'block';
+            updateUserInfo();
             updateStats();
             renderClients();
             renderEmployees();
+            renderSuppliers();
+            renderDebts();
             loadContacts();
+        }
+
+        // تحديث معلومات المستخدم
+        function updateUserInfo() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.name || currentUser.email || 'مستخدم';
+                document.getElementById('profileName').textContent = currentUser.name || currentUser.email || 'مستخدم';
+            }
         }
 
         // تسجيل الدخول
@@ -2030,7 +3103,7 @@
             
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             showMainApp();
-            alert(currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!');
+            showAlert(currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!', 'success');
             
             // عرض إشعار المطور بعد تسجيل الدخول
             setTimeout(showDeveloperNotification, 500);
@@ -2046,7 +3119,7 @@
             const confirmPassword = document.getElementById('registerConfirmPassword').value;
             
             if (password !== confirmPassword) {
-                alert(currentLanguage === 'ar' ? 'كلمات المرور غير متطابقة!' : 'Passwords do not match!');
+                showAlert(currentLanguage === 'ar' ? 'كلمات المرور غير متطابقة!' : 'Passwords do not match!', 'danger');
                 return;
             }
             
@@ -2060,7 +3133,7 @@
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             closeModal('registerModal');
             showMainApp();
-            alert(currentLanguage === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!');
+            showAlert(currentLanguage === 'ar' ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!', 'success');
             
             // عرض إشعار المطور بعد التسجيل
             setTimeout(showDeveloperNotification, 500);
@@ -2077,7 +3150,7 @@
             
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             showMainApp();
-            alert(currentLanguage === 'ar' ? 'تم تسجيل الدخول بحساب جوجل بنجاح!' : 'Google login successful!');
+            showAlert(currentLanguage === 'ar' ? 'تم تسجيل الدخول بحساب جوجل بنجاح!' : 'Google login successful!', 'success');
             
             // عرض إشعار المطور بعد تسجيل الدخول
             setTimeout(showDeveloperNotification, 500);
@@ -2092,7 +3165,7 @@
             
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             showMainApp();
-            alert(currentLanguage === 'ar' ? 'تم الدخول كضيف بنجاح!' : 'Guest login successful!');
+            showAlert(currentLanguage === 'ar' ? 'تم الدخول كضيف بنجاح!' : 'Guest login successful!', 'success');
             
             // عرض إشعار المطور بعد الدخول كضيف
             setTimeout(showDeveloperNotification, 500);
@@ -2104,7 +3177,7 @@
                 currentUser = null;
                 localStorage.removeItem('currentUser');
                 showLoginScreen();
-                alert(currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح!' : 'Logout successful!');
+                showAlert(currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح!' : 'Logout successful!', 'info');
             }
         }
 
@@ -2119,6 +3192,10 @@
                 
                 document.getElementById('currentDate').textContent = dateStr;
                 document.getElementById('currentTime').textContent = timeStr;
+                
+                // التاريخ الميلادي
+                const gregorianDate = now.toLocaleDateString('en-US', options);
+                document.getElementById('currentGregorianDate').textContent = gregorianDate;
             } else {
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                 const dateStr = now.toLocaleDateString('en-US', options);
@@ -2126,6 +3203,9 @@
                 
                 document.getElementById('currentDate').textContent = dateStr;
                 document.getElementById('currentTime').textContent = timeStr;
+                
+                // التاريخ الميلادي
+                document.getElementById('currentGregorianDate').textContent = dateStr;
             }
         }
 
@@ -2139,10 +3219,23 @@
             }
         }
 
+        // تهيئة الوضع الداكن/الفاتح في صفحة تسجيل الدخول
+        function initLoginTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('loginThemeIcon').className = 'fas fa-sun';
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('loginThemeIcon').className = 'fas fa-moon';
+            }
+        }
+
         // تفعيل الوضع الداكن
         function enableDarkMode() {
             document.body.classList.add('dark-theme');
             document.getElementById('themeIcon').className = 'fas fa-sun';
+            document.getElementById('loginThemeIcon').className = 'fas fa-sun';
             isDarkMode = true;
             localStorage.setItem('theme', 'dark');
         }
@@ -2151,6 +3244,7 @@
         function enableLightMode() {
             document.body.classList.remove('dark-theme');
             document.getElementById('themeIcon').className = 'fas fa-moon';
+            document.getElementById('loginThemeIcon').className = 'fas fa-moon';
             isDarkMode = false;
             localStorage.setItem('theme', 'light');
         }
@@ -2164,44 +3258,25 @@
             }
         }
 
-        // استرجاع البيانات من Local Storage
-        function loadData() {
-            if(localStorage.getItem('clients')) {
-                clients = JSON.parse(localStorage.getItem('clients'));
+        // تبديل الوضع الداكن/الفاتح في صفحة تسجيل الدخول
+        function toggleLoginTheme() {
+            if (document.body.classList.contains('dark-theme')) {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('loginThemeIcon').className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.body.classList.add('dark-theme');
+                document.getElementById('loginThemeIcon').className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
             }
-            
-            if(localStorage.getItem('employees')) {
-                employees = JSON.parse(localStorage.getItem('employees'));
-            }
-            
-            if(localStorage.getItem('contacts')) {
-                contacts = JSON.parse(localStorage.getItem('contacts'));
-            }
-        }
-
-        // حفظ البيانات في Local Storage
-        function saveData() {
-            localStorage.setItem('clients', JSON.stringify(clients));
-            localStorage.setItem('employees', JSON.stringify(employees));
-            localStorage.setItem('contacts', JSON.stringify(contacts));
-            updateStats();
-            
-            // محاكاة الحفظ في Google Drive
-            if (currentUser && currentUser.type !== 'guest') {
-                saveToDrive();
-            }
-        }
-
-        // محاكاة الحفظ في Google Drive
-        function saveToDrive() {
-            console.log('جاري حفظ البيانات في Google Drive...');
-            // في التطبيق الحقيقي، سيتم استخدام Google Drive API
         }
 
         // تحديث الإحصائيات
         function updateStats() {
             document.getElementById('clientsCount').textContent = Object.keys(clients).length;
             document.getElementById('employeesCount').textContent = Object.keys(employees).length;
+            document.getElementById('debtsCount').textContent = Object.keys(debts).length;
+            document.getElementById('suppliersCount').textContent = Object.keys(suppliers).length;
         }
 
         // عرض صفحة معينة
@@ -2222,13 +3297,13 @@
             // تفعيل عنصر التنقل المناسب
             if (pageId === 'home') {
                 document.querySelectorAll('.nav-item')[0].classList.add('active');
-            } else if (pageId === 'clients') {
+            } else if (pageId === 'account') {
                 document.querySelectorAll('.nav-item')[1].classList.add('active');
-            } else if (pageId === 'employees') {
+            } else if (pageId === 'clients') {
                 document.querySelectorAll('.nav-item')[2].classList.add('active');
-            } else if (pageId === 'reports') {
+            } else if (pageId === 'employees') {
                 document.querySelectorAll('.nav-item')[3].classList.add('active');
-            } else if (pageId === 'settings') {
+            } else if (pageId === 'reports') {
                 document.querySelectorAll('.nav-item')[4].classList.add('active');
             }
         }
@@ -2243,6 +3318,59 @@
             openModal('employeeModal');
         }
 
+        // فتح نافذة مورد
+        function showSupplierModal() {
+            openModal('supplierModal');
+        }
+
+        // فتح نافذة دين
+        function showDebtModal() {
+            openModal('debtModal');
+        }
+
+        // فتح نافذة فاتورة
+        function showInvoiceModal() {
+            openModal('invoiceModal');
+            // تعيين تاريخ اليوم كافتراضي
+            document.getElementById('invoiceDate').value = new Date().toISOString().split('T')[0];
+            // إعادة تعيين العناصر
+            document.getElementById('invoiceItems').innerHTML = `
+                <div class="transaction-item">
+                    <input type="text" class="form-control" placeholder="اسم الصنف" data-i18n-placeholder="item_name">
+                    <input type="number" class="form-control" placeholder="الكمية" data-i18n-placeholder="quantity" step="1" min="1" value="1">
+                    <input type="number" class="form-control" placeholder="السعر" data-i18n-placeholder="price" step="0.01" min="0">
+                    <button type="button" class="remove-item-btn" onclick="removeInvoiceItem(this)" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            updateInvoiceSummary();
+        }
+
+        // فتح نافذة سند
+        function showReceiptModal() {
+            openModal('receiptModal');
+            // تعيين تاريخ اليوم كافتراضي
+            document.getElementById('receiptDate').value = new Date().toISOString().split('T')[0];
+            updateReceiptLabels();
+        }
+
+        // فتح نافذة حوالة
+        function showTransferModal() {
+            openModal('transferModal');
+            // تعيين تاريخ اليوم كافتراضي
+            document.getElementById('transferDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        // فتح نافذة معاملة
+        function showTransactionModal(type) {
+            if (type) {
+                document.getElementById('transactionType').value = type;
+            }
+            openModal('transactionModal');
+            changeTransactionType();
+        }
+
         // فتح نافذة جهات الاتصال
         function showContactsModal() {
             openModal('contactsModal');
@@ -2252,6 +3380,17 @@
         // فتح نافذة تسجيل
         function showRegisterModal() {
             openModal('registerModal');
+        }
+
+        // فتح نافذة المبلغ المسلم
+        function showPaidAmountModal() {
+            if (!currentClient) {
+                showAlert(currentLanguage === 'ar' ? 'يرجى اختيار عميل أولاً' : 'Please select a client first', 'warning');
+                return;
+            }
+            openModal('paidAmountModal');
+            // تعيين تاريخ اليوم كافتراضي
+            document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
         }
 
         // فتح نافذة منبثقة
@@ -2284,14 +3423,15 @@
                 joinDate: new Date().toISOString().split('T')[0],
                 records: [],
                 totalSpent: 0,
-                loyaltyPoints: 0
+                loyaltyPoints: 0,
+                paidAmounts: []
             };
             
             saveData();
             renderClients();
             closeModal('clientModal');
             
-            alert(currentLanguage === 'ar' ? 'تم إضافة العميل بنجاح!' : 'Client added successfully!');
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة العميل بنجاح!' : 'Client added successfully!', 'success');
         }
 
         // إضافة موظف
@@ -2315,10 +3455,300 @@
             renderEmployees();
             closeModal('employeeModal');
             
-            alert(currentLanguage === 'ar' ? 'تم إضافة الموظف بنجاح!' : 'Employee added successfully!');
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة الموظف بنجاح!' : 'Employee added successfully!', 'success');
         }
 
-        // عرض قائمة العملاء مع إضافة زر جهات الاتصال
+        // إضافة مورد
+        function addSupplier(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('supplierName').value;
+            const phone = document.getElementById('supplierPhone').value;
+            const email = document.getElementById('supplierEmail').value;
+            const address = document.getElementById('supplierAddress').value;
+            const products = document.getElementById('supplierProducts').value;
+            
+            suppliers[name] = {
+                phone: phone,
+                email: email,
+                address: address,
+                products: products,
+                joinDate: new Date().toISOString().split('T')[0]
+            };
+            
+            saveData();
+            renderSuppliers();
+            closeModal('supplierModal');
+            
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة المورد بنجاح!' : 'Supplier added successfully!', 'success');
+        }
+
+        // إضافة دين
+        function addDebt(e) {
+            e.preventDefault();
+            
+            const type = document.querySelector('.debt-type-btn.active').getAttribute('data-type');
+            const personName = document.getElementById('debtPersonName').value;
+            const phone = document.getElementById('debtPhone').value;
+            const amount = parseFloat(document.getElementById('debtAmount').value);
+            const dueDate = document.getElementById('debtDueDate').value;
+            const description = document.getElementById('debtDescription').value;
+            
+            const debtId = Date.now().toString();
+            
+            debts[debtId] = {
+                type: type,
+                personName: personName,
+                phone: phone,
+                amount: amount,
+                dueDate: dueDate,
+                description: description,
+                createdDate: new Date().toISOString().split('T')[0],
+                status: 'pending'
+            };
+            
+            saveData();
+            renderDebts();
+            closeModal('debtModal');
+            
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة الدين بنجاح!' : 'Debt added successfully!', 'success');
+        }
+
+        // إضافة فاتورة
+        function addInvoice(e) {
+            e.preventDefault();
+            
+            const client = document.getElementById('invoiceClient').value;
+            const date = document.getElementById('invoiceDate').value;
+            const subtotal = parseFloat(document.getElementById('invoiceSubtotal').textContent);
+            const tax = parseFloat(document.getElementById('invoiceTax').textContent);
+            const total = parseFloat(document.getElementById('invoiceTotal').textContent);
+            
+            const items = [];
+            document.querySelectorAll('#invoiceItems .transaction-item').forEach(item => {
+                const name = item.querySelector('input[placeholder*="اسم"], input[placeholder*="name"]').value;
+                const quantity = parseFloat(item.querySelector('input[placeholder*="كمية"], input[placeholder*="Quantity"]').value) || 0;
+                const price = parseFloat(item.querySelector('input[placeholder*="سعر"], input[placeholder*="Price"]').value) || 0;
+                
+                if (name && quantity > 0 && price > 0) {
+                    items.push({
+                        name: name,
+                        quantity: quantity,
+                        price: price,
+                        total: quantity * price
+                    });
+                }
+            });
+            
+            if (items.length === 0) {
+                showAlert(currentLanguage === 'ar' ? 'يرجى إضافة عنصر واحد على الأقل!' : 'Please add at least one item!', 'warning');
+                return;
+            }
+            
+            const invoice = {
+                id: Date.now().toString(),
+                client: client,
+                date: date,
+                items: items,
+                subtotal: subtotal,
+                tax: tax,
+                total: total
+            };
+            
+            invoices.push(invoice);
+            saveData();
+            closeModal('invoiceModal');
+            
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة الفاتورة بنجاح!' : 'Invoice added successfully!', 'success');
+        }
+
+        // إضافة سند
+        function addReceipt(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('receiptType').value;
+            const person = document.getElementById('receiptPerson').value;
+            const amount = parseFloat(document.getElementById('receiptAmount').value);
+            const description = document.getElementById('receiptDescription').value;
+            const date = document.getElementById('receiptDate').value;
+            
+            const receipt = {
+                id: Date.now().toString(),
+                type: type,
+                person: person,
+                amount: amount,
+                description: description,
+                date: date
+            };
+            
+            receipts.push(receipt);
+            saveData();
+            closeModal('receiptModal');
+            
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة السند بنجاح!' : 'Receipt added successfully!', 'success');
+        }
+
+        // إضافة حوالة
+        function addTransfer(e) {
+            e.preventDefault();
+            
+            const sender = document.getElementById('transferSender').value;
+            const receiver = document.getElementById('transferReceiver').value;
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const date = document.getElementById('transferDate').value;
+            const description = document.getElementById('transferDescription').value;
+            
+            const transfer = {
+                id: Date.now().toString(),
+                sender: sender,
+                receiver: receiver,
+                amount: amount,
+                date: date,
+                description: description
+            };
+            
+            transfers.push(transfer);
+            saveData();
+            closeModal('transferModal');
+            
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة الحوالة بنجاح!' : 'Transfer added successfully!', 'success');
+        }
+
+        // إضافة معاملة
+        function addTransaction(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('transactionType').value;
+            let transaction;
+            
+            switch(type) {
+                case 'invoice':
+                    const client = document.getElementById('transactionClient').value;
+                    const invoiceDate = document.getElementById('transactionInvoiceDate').value;
+                    const invoiceAmount = parseFloat(document.getElementById('transactionInvoiceAmount').value);
+                    const invoiceDescription = document.getElementById('transactionInvoiceDescription').value;
+                    
+                    transaction = {
+                        id: Date.now().toString(),
+                        type: 'invoice',
+                        client: client,
+                        date: invoiceDate,
+                        amount: invoiceAmount,
+                        description: invoiceDescription
+                    };
+                    break;
+                    
+                case 'receipt':
+                    const receiptType = document.getElementById('transactionReceiptType').value;
+                    const receiptPerson = document.getElementById('transactionReceiptPerson').value;
+                    const receiptAmount = parseFloat(document.getElementById('transactionReceiptAmount').value);
+                    const receiptDescription = document.getElementById('transactionReceiptDescription').value;
+                    const receiptDate = document.getElementById('transactionReceiptDate').value;
+                    
+                    transaction = {
+                        id: Date.now().toString(),
+                        type: 'receipt',
+                        receiptType: receiptType,
+                        person: receiptPerson,
+                        amount: receiptAmount,
+                        description: receiptDescription,
+                        date: receiptDate
+                    };
+                    break;
+                    
+                case 'transfer':
+                    const sender = document.getElementById('transactionTransferSender').value;
+                    const receiver = document.getElementById('transactionTransferReceiver').value;
+                    const transferAmount = parseFloat(document.getElementById('transactionTransferAmount').value);
+                    const transferDate = document.getElementById('transactionTransferDate').value;
+                    const transferDescription = document.getElementById('transactionTransferDescription').value;
+                    
+                    transaction = {
+                        id: Date.now().toString(),
+                        type: 'transfer',
+                        sender: sender,
+                        receiver: receiver,
+                        amount: transferAmount,
+                        date: transferDate,
+                        description: transferDescription
+                    };
+                    break;
+                    
+                case 'debt':
+                    const debtType = document.querySelector('#transactionContent .debt-type-btn.active').getAttribute('data-type');
+                    const debtPersonName = document.getElementById('transactionDebtPersonName').value;
+                    const debtPhone = document.getElementById('transactionDebtPhone').value;
+                    const debtAmount = parseFloat(document.getElementById('transactionDebtAmount').value);
+                    const debtDueDate = document.getElementById('transactionDebtDueDate').value;
+                    const debtDescription = document.getElementById('transactionDebtDescription').value;
+                    
+                    transaction = {
+                        id: Date.now().toString(),
+                        type: 'debt',
+                        debtType: debtType,
+                        personName: debtPersonName,
+                        phone: debtPhone,
+                        amount: debtAmount,
+                        dueDate: debtDueDate,
+                        description: debtDescription
+                    };
+                    break;
+            }
+            
+            // حفظ المعاملة حسب نوعها
+            switch(type) {
+                case 'invoice':
+                    invoices.push(transaction);
+                    break;
+                case 'receipt':
+                    receipts.push(transaction);
+                    break;
+                case 'transfer':
+                    transfers.push(transaction);
+                    break;
+                case 'debt':
+                    debts[transaction.id] = transaction;
+                    break;
+            }
+            
+            saveData();
+            closeModal('transactionModal');
+            
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة المعاملة بنجاح!' : 'Transaction added successfully!', 'success');
+        }
+
+        // إضافة مبلغ مسلم
+        function addPaidAmount(e) {
+            e.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('paidAmount').value);
+            const date = document.getElementById('paymentDate').value;
+            const method = document.getElementById('paymentMethod').value;
+            const description = document.getElementById('paidAmountDescription').value;
+            
+            if (!currentClient) {
+                showAlert(currentLanguage === 'ar' ? 'يرجى اختيار عميل أولاً' : 'Please select a client first', 'warning');
+                return;
+            }
+            
+            if (!clients[currentClient].paidAmounts) {
+                clients[currentClient].paidAmounts = [];
+            }
+            
+            clients[currentClient].paidAmounts.push({
+                amount: amount,
+                date: date,
+                method: method,
+                description: description
+            });
+            
+            saveData();
+            closeModal('paidAmountModal');
+            
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة المبلغ المسلم بنجاح!' : 'Paid amount added successfully!', 'success');
+        }
+
+        // عرض قائمة العملاء
         function renderClients() {
             const container = document.getElementById('clientsList');
             container.innerHTML = '';
@@ -2353,7 +3783,13 @@
                             </div>
                         </div>
                         <div class="client-actions">
-                            <button class="contacts-btn" onclick="event.stopPropagation(); addClientToContacts('${client}')" title="${currentLanguage === 'ar' ? 'إضافة إلى جهات الاتصال' : 'Add to contacts'}">
+                            <button class="small-icon-btn whatsapp" onclick="event.stopPropagation(); sendClientStatement('whatsapp')" title="${currentLanguage === 'ar' ? 'إرسال عبر واتساب' : 'Send via WhatsApp'}">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
+                            <button class="small-icon-btn sms" onclick="event.stopPropagation(); sendClientStatement('sms')" title="${currentLanguage === 'ar' ? 'إرسال رسالة نصية' : 'Send SMS'}">
+                                <i class="fas fa-sms"></i>
+                            </button>
+                            <button class="small-icon-btn" onclick="event.stopPropagation(); addClientToContacts('${client}')" title="${currentLanguage === 'ar' ? 'إضافة إلى جهات الاتصال' : 'Add to contacts'}">
                                 <i class="fas fa-address-book"></i>
                             </button>
                             <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="event.stopPropagation(); deleteClient('${client}')">
@@ -2365,29 +3801,6 @@
                 `;
                 container.appendChild(clientElement);
             }
-        }
-
-        // إضافة عميل إلى جهات الاتصال
-        function addClientToContacts(clientName) {
-            const client = clients[clientName];
-            
-            // التحقق مما إذا كان العميل موجودًا بالفعل في جهات الاتصال
-            const existingContact = contacts.find(contact => contact.phone === client.phone);
-            if (existingContact) {
-                alert(currentLanguage === 'ar' ? 'هذا العميل موجود بالفعل في جهات الاتصال!' : 'This client already exists in contacts!');
-                return;
-            }
-            
-            // إضافة العميل إلى جهات الاتصال
-            contacts.push({
-                name: clientName,
-                phone: client.phone,
-                email: client.email || '',
-                address: client.address || ''
-            });
-            
-            saveData();
-            alert(`${clientName} ${currentLanguage === 'ar' ? 'تم إضافته إلى جهات الاتصال بنجاح!' : 'has been added to contacts successfully!'}`);
         }
 
         // عرض قائمة الموظفين
@@ -2434,13 +3847,100 @@
             }
         }
 
+        // عرض قائمة الموردين
+        function renderSuppliers() {
+            const container = document.getElementById('suppliersList');
+            container.innerHTML = '';
+            
+            if (Object.keys(suppliers).length === 0) {
+                container.innerHTML = `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <div class="item-details">
+                                <div class="item-name">${currentLanguage === 'ar' ? 'لا يوجد موردين' : 'No suppliers'}</div>
+                                <div class="item-desc">${currentLanguage === 'ar' ? 'قم بإضافة مورد جديد' : 'Add a new supplier'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            for (const supplier in suppliers) {
+                const supplierElement = document.createElement('div');
+                supplierElement.className = 'list-item';
+                supplierElement.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name">${supplier}</div>
+                            <div class="item-desc">${suppliers[supplier].phone} - ${suppliers[supplier].products}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px; margin-left: 5px;" onclick="deleteSupplier('${supplier}')">
+                            <i class="fas fa-trash"></i> ${currentLanguage === 'ar' ? 'حذف' : 'Delete'}
+                        </button>
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                `;
+                container.appendChild(supplierElement);
+            }
+        }
+
+        // عرض قائمة الديون
+        function renderDebts() {
+            const container = document.getElementById('debtsList');
+            container.innerHTML = '';
+            
+            if (Object.keys(debts).length === 0) {
+                container.innerHTML = `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <div class="item-details">
+                                <div class="item-name">${currentLanguage === 'ar' ? 'لا توجد ديون' : 'No debts'}</div>
+                                <div class="item-desc">${currentLanguage === 'ar' ? 'قم بإضافة دين جديد' : 'Add a new debt'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            for (const debtId in debts) {
+                const debt = debts[debtId];
+                const debtElement = document.createElement('div');
+                debtElement.className = 'list-item';
+                debtElement.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-icon" style="background: ${debt.type === 'debtor' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'}; color: ${debt.type === 'debtor' ? '#ef4444' : '#22c55e'};">
+                            <i class="fas ${debt.type === 'debtor' ? 'fa-hand-holding-usd' : 'fa-money-bill-wave'}"></i>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name">${debt.personName}</div>
+                            <div class="item-desc">${debt.amount.toFixed(2)} ${currentLanguage === 'ar' ? 'ر.س' : 'SAR'} - ${debt.dueDate}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px; margin-left: 5px;" onclick="deleteDebt('${debtId}')">
+                            <i class="fas fa-trash"></i> ${currentLanguage === 'ar' ? 'حذف' : 'Delete'}
+                        </button>
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                `;
+                container.appendChild(debtElement);
+            }
+        }
+
         // حذف عميل
         function deleteClient(clientName) {
             if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف العميل "${clientName}"؟ سيتم حذف جميع سجلاته أيضًا.` : `Are you sure you want to delete client "${clientName}"? All their records will also be deleted.`)) {
                 delete clients[clientName];
                 saveData();
                 renderClients();
-                alert(currentLanguage === 'ar' ? 'تم حذف العميل بنجاح!' : 'Client deleted successfully!');
+                showAlert(currentLanguage === 'ar' ? 'تم حذف العميل بنجاح!' : 'Client deleted successfully!', 'success');
             }
         }
 
@@ -2450,31 +3950,27 @@
                 delete employees[employeeName];
                 saveData();
                 renderEmployees();
-                alert(currentLanguage === 'ar' ? 'تم حذف الموظف بنجاح!' : 'Employee deleted successfully!');
+                showAlert(currentLanguage === 'ar' ? 'تم حذف الموظف بنجاح!' : 'Employee deleted successfully!', 'success');
             }
         }
 
-        // حذف حساب العميل بالكامل
-        function deleteClientAccount() {
-            if (!currentClient) return;
-            
-            if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف حساب العميل "${currentClient}" بالكامل؟` : `Are you sure you want to completely delete client account "${currentClient}"?`)) {
-                delete clients[currentClient];
+        // حذف مورد
+        function deleteSupplier(supplierName) {
+            if (confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف هذا المورد؟' : 'Are you sure you want to delete this supplier?')) {
+                delete suppliers[supplierName];
                 saveData();
-                showPage('clients');
-                alert(currentLanguage === 'ar' ? 'تم حذف حساب العميل بالكامل!' : 'Client account completely deleted!');
+                renderSuppliers();
+                showAlert(currentLanguage === 'ar' ? 'تم حذف المورد بنجاح!' : 'Supplier deleted successfully!', 'success');
             }
         }
 
-        // حذف حساب الموظف بالكامل
-        function deleteEmployeeAccount() {
-            if (!currentEmployee) return;
-            
-            if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف حساب الموظف "${currentEmployee}" بالكامل؟` : `Are you sure you want to completely delete employee account "${currentEmployee}"?`)) {
-                delete employees[currentEmployee];
+        // حذف دين
+        function deleteDebt(debtId) {
+            if (confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف هذا الدين؟' : 'Are you sure you want to delete this debt?')) {
+                delete debts[debtId];
                 saveData();
-                showPage('employees');
-                alert(currentLanguage === 'ar' ? 'تم حذف حساب الموظف بالكامل!' : 'Employee account completely deleted!');
+                renderDebts();
+                showAlert(currentLanguage === 'ar' ? 'تم حذف الدين بنجاح!' : 'Debt deleted successfully!', 'success');
             }
         }
 
@@ -2484,14 +3980,231 @@
                 clients = {};
                 employees = {};
                 contacts = [];
+                debts = {};
+                suppliers = {};
+                invoices = [];
+                receipts = [];
+                transfers = [];
+                paidAmounts = {};
                 saveData();
                 renderClients();
                 renderEmployees();
-                alert(currentLanguage === 'ar' ? 'تم حذف جميع البيانات بنجاح!' : 'All data deleted successfully!');
+                renderSuppliers();
+                renderDebts();
+                showAlert(currentLanguage === 'ar' ? 'تم حذف جميع البيانات بنجاح!' : 'All data deleted successfully!', 'success');
             }
         }
 
-        // عرض سجل العميل
+        // وظائف الفواتير
+        function addInvoiceItem() {
+            const itemsContainer = document.getElementById('invoiceItems');
+            const newItem = document.createElement('div');
+            newItem.className = 'transaction-item';
+            newItem.innerHTML = `
+                <input type="text" class="form-control" placeholder="اسم الصنف" data-i18n-placeholder="item_name">
+                <input type="number" class="form-control" placeholder="الكمية" data-i18n-placeholder="quantity" step="1" min="1" value="1">
+                <input type="number" class="form-control" placeholder="السعر" data-i18n-placeholder="price" step="0.01" min="0">
+                <button type="button" class="remove-item-btn" onclick="removeInvoiceItem(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            itemsContainer.appendChild(newItem);
+            
+            // إضافة مستمعات الأحداث لحساب الإجمالي تلقائياً
+            const inputs = newItem.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', updateInvoiceSummary);
+            });
+        }
+
+        function removeInvoiceItem(button) {
+            button.parentElement.remove();
+            updateInvoiceSummary();
+        }
+
+        function updateInvoiceSummary() {
+            let subtotal = 0;
+            const items = document.querySelectorAll('#invoiceItems .transaction-item');
+            
+            items.forEach(item => {
+                const quantity = parseFloat(item.querySelector('input[placeholder*="كمية"], input[placeholder*="Quantity"]').value) || 0;
+                const price = parseFloat(item.querySelector('input[placeholder*="سعر"], input[placeholder*="Price"]').value) || 0;
+                subtotal += quantity * price;
+            });
+            
+            const tax = subtotal * 0.15; // ضريبة 15%
+            const total = subtotal + tax;
+            
+            document.getElementById('invoiceSubtotal').textContent = subtotal.toFixed(2);
+            document.getElementById('invoiceTax').textContent = tax.toFixed(2);
+            document.getElementById('invoiceTotal').textContent = total.toFixed(2);
+        }
+
+        // وظائف السندات
+        function updateReceiptLabels() {
+            const type = document.getElementById('receiptType').value;
+            const label = document.getElementById('receiptPersonLabel');
+            const placeholder = document.getElementById('receiptPerson');
+            
+            if (type === 'cash') {
+                label.textContent = currentLanguage === 'ar' ? 'اسم العميل' : 'Client Name';
+                placeholder.placeholder = currentLanguage === 'ar' ? 'أدخل اسم العميل' : 'Enter client name';
+            } else {
+                label.textContent = currentLanguage === 'ar' ? 'اسم المورد' : 'Supplier Name';
+                placeholder.placeholder = currentLanguage === 'ar' ? 'أدخل اسم المورد' : 'Enter supplier name';
+            }
+        }
+
+        // وظائف المعاملات
+        function changeTransactionType() {
+            const type = document.getElementById('transactionType').value;
+            const content = document.getElementById('transactionContent');
+            
+            let html = '';
+            
+            switch(type) {
+                case 'invoice':
+                    html = `
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="client_name">اسم العميل</label>
+                            <input type="text" class="form-control" id="transactionClient" data-i18n-placeholder="enter_client_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="invoice_date">تاريخ الفاتورة</label>
+                            <input type="date" class="form-control" id="transactionInvoiceDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="amount">المبلغ</label>
+                            <input type="number" class="form-control" id="transactionInvoiceAmount" data-i18n-placeholder="enter_amount" required step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="description">الوصف</label>
+                            <textarea class="form-control" id="transactionInvoiceDescription" data-i18n-placeholder="enter_description" rows="3"></textarea>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'receipt':
+                    html = `
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="receipt_type">نوع السند</label>
+                            <select class="form-control" id="transactionReceiptType" required>
+                                <option value="cash" data-i18n="cash_receipt">سند قبض</option>
+                                <option value="payment" data-i18n="payment_receipt">سند صرف</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="person_name">اسم الشخص</label>
+                            <input type="text" class="form-control" id="transactionReceiptPerson" data-i18n-placeholder="enter_person_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="amount">المبلغ</label>
+                            <input type="number" class="form-control" id="transactionReceiptAmount" data-i18n-placeholder="enter_amount" required step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="description">الوصف</label>
+                            <textarea class="form-control" id="transactionReceiptDescription" data-i18n-placeholder="enter_description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="receipt_date">تاريخ السند</label>
+                            <input type="date" class="form-control" id="transactionReceiptDate" required>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'transfer':
+                    html = `
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="sender">المرسل</label>
+                            <input type="text" class="form-control" id="transactionTransferSender" data-i18n-placeholder="enter_sender_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="receiver">المستلم</label>
+                            <input type="text" class="form-control" id="transactionTransferReceiver" data-i18n-placeholder="enter_receiver_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="amount">المبلغ</label>
+                            <input type="number" class="form-control" id="transactionTransferAmount" data-i18n-placeholder="enter_amount" required step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="transfer_date">تاريخ الحوالة</label>
+                            <input type="date" class="form-control" id="transactionTransferDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="description">الوصف</label>
+                            <textarea class="form-control" id="transactionTransferDescription" data-i18n-placeholder="enter_description" rows="3"></textarea>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'debt':
+                    html = `
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="debt_type">نوع الدين</label>
+                            <div class="debt-type">
+                                <div class="debt-type-btn active" data-type="debtor" onclick="selectTransactionDebtType('debtor')">
+                                    <span data-i18n="debtor">مدين</span>
+                                </div>
+                                <div class="debt-type-btn" data-type="creditor" onclick="selectTransactionDebtType('creditor')">
+                                    <span data-i18n="creditor">دائن</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="person_name">اسم الشخص</label>
+                            <input type="text" class="form-control" id="transactionDebtPersonName" data-i18n-placeholder="enter_person_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="phone">رقم الهاتف</label>
+                            <input type="text" class="form-control" id="transactionDebtPhone" data-i18n-placeholder="enter_phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="amount">المبلغ</label>
+                            <input type="number" class="form-control" id="transactionDebtAmount" data-i18n-placeholder="enter_amount" required step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="due_date">تاريخ الاستحقاق</label>
+                            <input type="date" class="form-control" id="transactionDebtDueDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" data-i18n="description">الوصف</label>
+                            <textarea class="form-control" id="transactionDebtDescription" data-i18n-placeholder="enter_description" rows="3"></textarea>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            content.innerHTML = html;
+            
+            // تعيين تاريخ اليوم كافتراضي
+            const dateInput = content.querySelector('input[type="date"]');
+            if (dateInput) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        function selectTransactionDebtType(type) {
+            const container = document.getElementById('transactionContent');
+            container.querySelectorAll('.debt-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            container.querySelector(`.debt-type-btn[data-type="${type}"]`).classList.add('active');
+        }
+
+        function selectDebtType(type) {
+            document.querySelectorAll('.debt-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.querySelector(`.debt-type-btn[data-type="${type}"]`).classList.add('active');
+        }
+
+        // إضافة مستمع حدث لزر تبديل الوضع
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        document.getElementById('loginThemeToggle').addEventListener('click', toggleLoginTheme);
+
+        // باقي الوظائف الأساسية
         function showClientRecords(clientName) {
             currentClient = clientName;
             document.getElementById('clientRecordsTitle').textContent = `${currentLanguage === 'ar' ? 'سجل العميل:' : 'Client Records:'} ${clientName}`;
@@ -2499,7 +4212,6 @@
             renderClientRecords();
         }
 
-        // عرض سجل الموظف
         function showEmployeeRecords(employeeName) {
             currentEmployee = employeeName;
             document.getElementById('employeeRecordsTitle').textContent = `${currentLanguage === 'ar' ? 'سجل الموظف:' : 'Employee Records:'} ${employeeName}`;
@@ -2507,7 +4219,6 @@
             renderEmployeeRecords();
         }
 
-        // عرض سجلات العميل
         function renderClientRecords() {
             if (!currentClient || !clients[currentClient]) return;
             
@@ -2516,6 +4227,7 @@
             
             const client = clients[currentClient];
             let total = 0;
+            let paidTotal = 0;
             
             if (client.records && client.records.length > 0) {
                 client.records.forEach((record, index) => {
@@ -2544,10 +4256,44 @@
                 `;
             }
             
-            document.getElementById('clientTotal').textContent = `${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${total.toFixed(2)}`;
+            // عرض المبالغ المسلمة
+            if (client.paidAmounts && client.paidAmounts.length > 0) {
+                const paidHeader = document.createElement('tr');
+                paidHeader.innerHTML = `
+                    <td colspan="5" style="text-align: center; background: #f0f9ff; font-weight: bold;">
+                        ${currentLanguage === 'ar' ? 'المبالغ المسلمة' : 'Paid Amounts'}
+                    </td>
+                `;
+                container.appendChild(paidHeader);
+                
+                client.paidAmounts.forEach((payment, index) => {
+                    paidTotal += payment.amount;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${payment.description || currentLanguage === 'ar' ? 'سداد' : 'Payment'}</td>
+                        <td style="color: var(--success);">-${payment.amount.toFixed(2)}</td>
+                        <td>${payment.date}</td>
+                        <td>${payment.method}</td>
+                        <td>
+                            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="deletePaidAmount(${index})">
+                                <i class="fas fa-trash"></i> ${currentLanguage === 'ar' ? 'حذف' : 'Delete'}
+                            </button>
+                        </td>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+            
+            const remaining = total - paidTotal;
+            
+            document.getElementById('clientTotal').innerHTML = `
+                ${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${total.toFixed(2)}<br>
+                ${currentLanguage === 'ar' ? 'المسدد:' : 'Paid:'} ${paidTotal.toFixed(2)}<br>
+                <strong>${currentLanguage === 'ar' ? 'المتبقي:' : 'Remaining:'} ${remaining.toFixed(2)}</strong>
+            `;
         }
 
-        // عرض سجلات الموظف
         function renderEmployeeRecords() {
             if (!currentEmployee || !employees[currentEmployee]) return;
             
@@ -2586,7 +4332,6 @@
             document.getElementById('employeeTotal').textContent = `${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${total.toFixed(2)}`;
         }
 
-        // إضافة سجل للعميل
         function addClientRecord() {
             if (!currentClient) return;
             
@@ -2594,7 +4339,7 @@
             const value = parseFloat(document.getElementById('itemValue').value);
             
             if (!item || !value) {
-                alert(currentLanguage === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields');
+                showAlert(currentLanguage === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields', 'warning');
                 return;
             }
             
@@ -2620,10 +4365,9 @@
             
             saveData();
             renderClientRecords();
-            alert(currentLanguage === 'ar' ? 'تم إضافة المعاملة بنجاح!' : 'Transaction added successfully!');
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة المعاملة بنجاح!' : 'Transaction added successfully!', 'success');
         }
 
-        // إضافة سجل للموظف
         function addEmployeeRecord() {
             if (!currentEmployee) return;
             
@@ -2631,7 +4375,7 @@
             const value = parseFloat(document.getElementById('employeeItemValue').value);
             
             if (!item || !value) {
-                alert(currentLanguage === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields');
+                showAlert(currentLanguage === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields', 'warning');
                 return;
             }
             
@@ -2653,10 +4397,9 @@
             
             saveData();
             renderEmployeeRecords();
-            alert(currentLanguage === 'ar' ? 'تم إضافة المعاملة بنجاح!' : 'Transaction added successfully!');
+            showAlert(currentLanguage === 'ar' ? 'تم إضافة المعاملة بنجاح!' : 'Transaction added successfully!', 'success');
         }
 
-        // حذف سجل العميل
         function deleteClientRecord(index) {
             if (!currentClient || !confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف هذه المعاملة؟' : 'Are you sure you want to delete this transaction?')) return;
             
@@ -2669,20 +4412,49 @@
             
             saveData();
             renderClientRecords();
-            alert(currentLanguage === 'ar' ? 'تم حذف المعاملة بنجاح!' : 'Transaction deleted successfully!');
+            showAlert(currentLanguage === 'ar' ? 'تم حذف المعاملة بنجاح!' : 'Transaction deleted successfully!', 'success');
         }
 
-        // حذف سجل الموظف
         function deleteEmployeeRecord(index) {
             if (!currentEmployee || !confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف هذه المعاملة؟' : 'Are you sure you want to delete this transaction?')) return;
             
             employees[currentEmployee].records.splice(index, 1);
             saveData();
             renderEmployeeRecords();
-            alert(currentLanguage === 'ar' ? 'تم حذف المعاملة بنجاح!' : 'Transaction deleted successfully!');
+            showAlert(currentLanguage === 'ar' ? 'تم حذف المعاملة بنجاح!' : 'Transaction deleted successfully!', 'success');
         }
 
-        // إرسال كشف العميل عبر واتساب
+        function deletePaidAmount(index) {
+            if (!currentClient || !confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف هذا السداد؟' : 'Are you sure you want to delete this payment?')) return;
+            
+            clients[currentClient].paidAmounts.splice(index, 1);
+            saveData();
+            renderClientRecords();
+            showAlert(currentLanguage === 'ar' ? 'تم حذف السداد بنجاح!' : 'Payment deleted successfully!', 'success');
+        }
+
+        function deleteClientAccount() {
+            if (!currentClient) return;
+            
+            if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف حساب العميل "${currentClient}" بالكامل؟` : `Are you sure you want to completely delete client account "${currentClient}"?`)) {
+                delete clients[currentClient];
+                saveData();
+                showPage('clients');
+                showAlert(currentLanguage === 'ar' ? 'تم حذف حساب العميل بالكامل!' : 'Client account completely deleted!', 'success');
+            }
+        }
+
+        function deleteEmployeeAccount() {
+            if (!currentEmployee) return;
+            
+            if (confirm(currentLanguage === 'ar' ? `هل أنت متأكد من حذف حساب الموظف "${currentEmployee}" بالكامل؟` : `Are you sure you want to completely delete employee account "${currentEmployee}"?`)) {
+                delete employees[currentEmployee];
+                saveData();
+                showPage('employees');
+                showAlert(currentLanguage === 'ar' ? 'تم حذف حساب الموظف بالكامل!' : 'Employee account completely deleted!', 'success');
+            }
+        }
+
         function sendClientStatement(method) {
             if (!currentClient) return;
             
@@ -2721,9 +4493,35 @@
                     `No transactions recorded\n`;
             }
             
+            // إضافة المبالغ المسلمة
+            let paidTotal = 0;
+            if (client.paidAmounts && client.paidAmounts.length > 0) {
+                message += currentLanguage === 'ar' ? `\nالمبالغ المسلمة:\n` : `\nPaid Amounts:\n`;
+                client.paidAmounts.forEach(payment => {
+                    paidTotal += payment.amount;
+                    message += currentLanguage === 'ar' ? 
+                        `- ${payment.amount.toFixed(2)} ر.س (${payment.date}) - ${payment.method}\n` :
+                        `- ${payment.amount.toFixed(2)} SAR (${payment.date}) - ${payment.method}\n`;
+                });
+            }
+            
+            const remaining = client.totalSpent - paidTotal;
+            
             message += currentLanguage === 'ar' ? 
-                `\nشكراً لتعاملكم معنا` :
-                `\nThank you for your business`;
+                `\nالمجموع: ${client.totalSpent.toFixed(2)} ر.س\n` :
+                `\nTotal: ${client.totalSpent.toFixed(2)} SAR\n`;
+            
+            message += currentLanguage === 'ar' ? 
+                `المسدد: ${paidTotal.toFixed(2)} ر.س\n` :
+                `Paid: ${paidTotal.toFixed(2)} SAR\n`;
+            
+            message += currentLanguage === 'ar' ? 
+                `المتبقي: ${remaining.toFixed(2)} ر.س\n\n` :
+                `Remaining: ${remaining.toFixed(2)} SAR\n\n`;
+            
+            message += currentLanguage === 'ar' ? 
+                `شكراً لتعاملكم معنا` :
+                `Thank you for your business`;
             
             if (method === 'whatsapp') {
                 const phone = client.phone.replace(/\D/g, '');
@@ -2733,17 +4531,13 @@
                 alert(currentLanguage === 'ar' ? 
                     `جاري إرسال رسالة نصية إلى ${client.phone}\n\n${message}` :
                     `Sending SMS to ${client.phone}\n\n${message}`);
-                // في التطبيق الحقيقي، سيتم استخدام API لإرسال الرسائل النصية
             }
         }
 
-        // تحميل جهات الاتصال
         function loadContacts() {
             // لا نقوم بتحميل جهات اتصال افتراضية
-            // سيتم إضافة جهات الاتصال يدويًا من قبل المستخدم
         }
 
-        // عرض جهات الاتصال
         function renderContacts() {
             const container = document.getElementById('contactsList');
             container.innerHTML = '';
@@ -2777,7 +4571,6 @@
             });
         }
 
-        // فلترة جهات الاتصال
         function filterContacts() {
             const query = document.getElementById('contactSearch').value.toLowerCase();
             const contactItems = document.querySelectorAll('.contact-item');
@@ -2794,7 +4587,6 @@
             });
         }
 
-        // اختيار جهة اتصال
         function selectContact(contact) {
             document.getElementById('clientPhone').value = contact.phone;
             document.getElementById('clientName').value = contact.name;
@@ -2802,7 +4594,6 @@
             showClientModal();
         }
 
-        // إضافة جهة اتصال جديدة
         function addNewContact() {
             const name = prompt(currentLanguage === 'ar' ? 'أدخل اسم جهة الاتصال:' : 'Enter contact name:');
             if (name && name.trim()) {
@@ -2814,82 +4605,140 @@
                     });
                     saveData();
                     renderContacts();
-                    alert(currentLanguage === 'ar' ? 'تم إضافة جهة الاتصال بنجاح!' : 'Contact added successfully!');
+                    showAlert(currentLanguage === 'ar' ? 'تم إضافة جهة الاتصال بنجاح!' : 'Contact added successfully!', 'success');
                 }
             }
         }
 
-        // حذف جهة اتصال
         function deleteContact(index) {
             if (confirm(currentLanguage === 'ar' ? 'هل أنت متأكد من حذف جهة الاتصال هذه؟' : 'Are you sure you want to delete this contact?')) {
                 contacts.splice(index, 1);
                 saveData();
                 renderContacts();
-                alert(currentLanguage === 'ar' ? 'تم حذف جهة الاتصال بنجاح!' : 'Contact deleted successfully!');
+                showAlert(currentLanguage === 'ar' ? 'تم حذف جهة الاتصال بنجاح!' : 'Contact deleted successfully!', 'success');
             }
         }
 
-        // الوصول إلى جهات اتصال الجهاز
+        function addClientToContacts(clientName) {
+            const client = clients[clientName];
+            
+            const existingContact = contacts.find(contact => contact.phone === client.phone);
+            if (existingContact) {
+                showAlert(currentLanguage === 'ar' ? 'هذا العميل موجود بالفعل في جهات الاتصال!' : 'This client already exists in contacts!', 'warning');
+                return;
+            }
+            
+            contacts.push({
+                name: clientName,
+                phone: client.phone,
+                email: client.email || '',
+                address: client.address || ''
+            });
+            
+            saveData();
+            showAlert(`${clientName} ${currentLanguage === 'ar' ? 'تم إضافته إلى جهات الاتصال بنجاح!' : 'has been added to contacts successfully!'}`, 'success');
+        }
+
         function accessDeviceContacts() {
             if ('contacts' in navigator && 'select' in navigator.contacts) {
                 navigator.contacts.select(['name', 'tel'])
                     .then(contacts => {
                         if (contacts && contacts.length > 0) {
                             const contact = contacts[0];
-                            alert(currentLanguage === 'ar' ? 
+                            showAlert(currentLanguage === 'ar' ? 
                                 `تم اختيار جهة الاتصال: ${contact.name} - ${contact.tel ? contact.tel[0] : 'لا يوجد رقم'}` :
-                                `Selected contact: ${contact.name} - ${contact.tel ? contact.tel[0] : 'No number'}`);
+                                `Selected contact: ${contact.name} - ${contact.tel ? contact.tel[0] : 'No number'}`, 'success');
                             
-                            // استخدام جهة الاتصال المختارة
                             document.getElementById('clientPhone').value = contact.tel ? contact.tel[0] : '';
                             document.getElementById('clientName').value = contact.name || '';
                             
-                            // إظهار نافذة إضافة العميل
                             showClientModal();
                         } else {
-                            alert(currentLanguage === 'ar' ? 'لم يتم اختيار أي جهة اتصال' : 'No contact selected');
+                            showAlert(currentLanguage === 'ar' ? 'لم يتم اختيار أي جهة اتصال' : 'No contact selected', 'info');
                         }
                     })
                     .catch(error => {
                         console.error('خطأ في الوصول إلى جهات الاتصال:', error);
-                        alert(currentLanguage === 'ar' ? 
+                        showAlert(currentLanguage === 'ar' ? 
                             'عذراً، لا يمكن الوصول إلى جهات اتصال الجهاز. تأكد من السماح للتطبيق بالوصول إلى جهات الاتصال.' :
-                            'Sorry, cannot access device contacts. Make sure to allow the app to access contacts.');
+                            'Sorry, cannot access device contacts. Make sure to allow the app to access contacts.', 'warning');
                     });
             } else {
-                alert(currentLanguage === 'ar' ? 
+                showAlert(currentLanguage === 'ar' ? 
                     'عذراً، متصفحك لا يدعم واجهة برمجة تطبيقات جهات الاتصال. يمكنك إضافة جهات الاتصال يدوياً.' :
-                    'Sorry, your browser does not support the Contacts API. You can add contacts manually.');
+                    'Sorry, your browser does not support the Contacts API. You can add contacts manually.', 'warning');
             }
         }
 
-        // الوصول إلى Google Drive
-        function accessDrive() {
-            alert(currentLanguage === 'ar' ? 'جاري الوصول إلى Google Drive...' : 'Accessing Google Drive...');
+        // النسخ الاحتياطي إلى Google Drive
+        function backupToDrive() {
+            createBackup();
+            showAlert(currentLanguage === 'ar' ? 'جاري حفظ النسخة الاحتياطية في Google Drive...' : 'Saving backup to Google Drive...', 'info');
             // في التطبيق الحقيقي، سيتم استخدام Google Drive API
         }
 
-        // البحث في البيانات
+        // النسخ الاحتياطي إلى الجهاز
+        function backupToDevice() {
+            createBackup();
+            showAlert(currentLanguage === 'ar' ? 'تم تحميل النسخة الاحتياطية إلى جهازك' : 'Backup downloaded to your device', 'success');
+        }
+
+        // تصدير إلى PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // عنوان التقرير
+            doc.setFontSize(20);
+            doc.text(currentLanguage === 'ar' ? 'تقرير المحاسب الذكي' : 'Smart Accountant Report', 105, 15, { align: 'center' });
+            
+            // التاريخ
+            doc.setFontSize(12);
+            doc.text(`${currentLanguage === 'ar' ? 'تاريخ التقرير:' : 'Report Date:'} ${new Date().toLocaleDateString()}`, 15, 25);
+            
+            // إحصائيات
+            let yPosition = 40;
+            doc.setFontSize(16);
+            doc.text(currentLanguage === 'ar' ? 'الإحصائيات' : 'Statistics', 15, yPosition);
+            yPosition += 10;
+            
+            doc.setFontSize(12);
+            doc.text(`${currentLanguage === 'ar' ? 'عدد العملاء:' : 'Clients:'} ${Object.keys(clients).length}`, 15, yPosition);
+            yPosition += 7;
+            doc.text(`${currentLanguage === 'ar' ? 'عدد الموظفين:' : 'Employees:'} ${Object.keys(employees).length}`, 15, yPosition);
+            yPosition += 7;
+            doc.text(`${currentLanguage === 'ar' ? 'عدد الديون:' : 'Debts:'} ${Object.keys(debts).length}`, 15, yPosition);
+            yPosition += 7;
+            doc.text(`${currentLanguage === 'ar' ? 'عدد الموردين:' : 'Suppliers:'} ${Object.keys(suppliers).length}`, 15, yPosition);
+            
+            // حفظ الملف
+            doc.save(currentLanguage === 'ar' ? 'تقرير_المحاسب_الذكي.pdf' : 'smart_accountant_report.pdf');
+            showAlert(currentLanguage === 'ar' ? 'تم تصدير التقرير إلى PDF بنجاح' : 'Report exported to PDF successfully', 'success');
+        }
+
         function searchData() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             
             if (query.length > 2) {
-                alert(currentLanguage === 'ar' ? `جاري البحث عن: ${query}` : `Searching for: ${query}`);
-                // في التطبيق الحقيقي، سيتم البحث في جميع البيانات وعرض النتائج
+                showAlert(currentLanguage === 'ar' ? `جاري البحث عن: ${query}` : `Searching for: ${query}`, 'info');
             }
         }
 
-        // إنشاء تقرير
         function generateReport(type) {
-            alert(currentLanguage === 'ar' ? `جاري إنشاء تقرير ${type}...` : `Generating ${type} report...`);
+            showAlert(currentLanguage === 'ar' ? `جاري إنشاء تقرير ${type}...` : `Generating ${type} report...`, 'info');
         }
 
-        // إنشاء نسخة احتياطية
         function createBackup() {
             const backupData = {
                 clients: clients,
                 employees: employees,
                 contacts: contacts,
+                debts: debts,
+                suppliers: suppliers,
+                invoices: invoices,
+                receipts: receipts,
+                transfers: transfers,
+                paidAmounts: paidAmounts,
                 timestamp: new Date().toISOString()
             };
             
@@ -2901,10 +4750,15 @@
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
             
-            alert(currentLanguage === 'ar' ? 'تم إنشاء النسخة الاحتياطية بنجاح!' : 'Backup created successfully!');
+            // تحديث وقت آخر نسخة احتياطية
+            const now = new Date();
+            const backupTime = now.toLocaleString();
+            document.getElementById('lastBackupTime').textContent = backupTime;
+            localStorage.setItem('lastBackupTime', backupTime);
+            
+            showAlert(currentLanguage === 'ar' ? 'تم إنشاء النسخة الاحتياطية بنجاح!' : 'Backup created successfully!', 'success');
         }
 
-        // استعادة نسخة احتياطية
         function restoreBackup() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -2922,14 +4776,22 @@
                             clients = backupData.clients || {};
                             employees = backupData.employees || {};
                             contacts = backupData.contacts || [];
+                            debts = backupData.debts || {};
+                            suppliers = backupData.suppliers || {};
+                            invoices = backupData.invoices || [];
+                            receipts = backupData.receipts || [];
+                            transfers = backupData.transfers || [];
+                            paidAmounts = backupData.paidAmounts || {};
                             
                             saveData();
                             renderClients();
                             renderEmployees();
-                            alert(currentLanguage === 'ar' ? 'تم استعادة النسخة الاحتياطية بنجاح!' : 'Backup restored successfully!');
+                            renderSuppliers();
+                            renderDebts();
+                            showAlert(currentLanguage === 'ar' ? 'تم استعادة النسخة الاحتياطية بنجاح!' : 'Backup restored successfully!', 'success');
                         }
                     } catch (error) {
-                        alert(currentLanguage === 'ar' ? 'خطأ في استعادة النسخة الاحتياطية!' : 'Error restoring backup!');
+                        showAlert(currentLanguage === 'ar' ? 'خطأ في استعادة النسخة الاحتياطية!' : 'Error restoring backup!', 'danger');
                     }
                 };
                 
@@ -2939,18 +4801,74 @@
             input.click();
         }
 
-        // إظهار إشعار المطور
         function showDeveloperNotification() {
             document.getElementById('developerNotification').style.display = 'block';
+            // إخفاء الإشعار بعد 30 ثانية
+            setTimeout(closeDeveloperNotification, 30000);
         }
 
-        // إغلاق إشعار المطور
         function closeDeveloperNotification() {
             document.getElementById('developerNotification').style.display = 'none';
         }
 
-        // إضافة مستمع حدث لزر تبديل الوضع
-        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        // وظائف صفحة الحساب
+        function showProfileModal() {
+            showAlert(currentLanguage === 'ar' ? 'جاري فتح نافذة تعديل الملف الشخصي...' : 'Opening profile edit window...', 'info');
+        }
+
+        function showSubscriptionModal() {
+            showAlert(currentLanguage === 'ar' ? 'جاري فتح نافذة الاشتراك...' : 'Opening subscription window...', 'info');
+        }
+
+        function showSecurityModal() {
+            showAlert(currentLanguage === 'ar' ? 'جاري فتح نافذة الأمان...' : 'Opening security window...', 'info');
+        }
+
+        function showNotificationsModal() {
+            showAlert(currentLanguage === 'ar' ? 'جاري فتح نافذة الإشعارات...' : 'Opening notifications window...', 'info');
+        }
+
+        function showChangePasswordModal() {
+            showAlert(currentLanguage === 'ar' ? 'جاري فتح نافذة تغيير كلمة المرور...' : 'Opening change password window...', 'info');
+        }
+
+        function showPrivacyModal() {
+            showAlert(currentLanguage === 'ar' ? 'جاري فتح نافذة الخصوصية...' : 'Opening privacy window...', 'info');
+        }
+
+        function showHelpModal() {
+            showAlert(currentLanguage === 'ar' ? 'جاري فتح نافذة المساعدة والدعم...' : 'Opening help and support window...', 'info');
+        }
+
+        // وظيفة عرض التنبيهات
+        function showAlert(message, type) {
+            // إنشاء عنصر التنبيه
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${getAlertIcon(type)}"></i>
+                <span>${message}</span>
+            `;
+            
+            // إضافة التنبيه إلى بداية body
+            document.body.appendChild(alert);
+            
+            // إزالة التنبيه بعد 5 ثوانٍ
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // الحصول على الأيقونة المناسبة لنوع التنبيه
+        function getAlertIcon(type) {
+            switch(type) {
+                case 'success': return 'check-circle';
+                case 'info': return 'info-circle';
+                case 'warning': return 'exclamation-triangle';
+                case 'danger': return 'exclamation-circle';
+                default: return 'info-circle';
+            }
+        }
     </script>
 </body>
 </html>
