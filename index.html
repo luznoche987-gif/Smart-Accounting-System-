@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المحاسب الذكي</title>
+    <title>المحاسب الذكي - نظام المحاسبة المتكامل</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -749,51 +749,64 @@
             font-size: 13px;
         }
 
-        @media (max-width: 480px) {
-            .stats-grid, .quick-actions, .finance-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stat-card, .action-card, .finance-card {
-                padding: 15px;
-            }
-            
-            .section {
-                margin: 15px 10px;
-            }
-            
-            .developer-info {
-                display: none;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .app-container {
-                max-width: 500px;
-                margin: 0 auto;
-                box-shadow: 0 0 20px rgba(0,0,0,0.1);
-                min-height: 100vh;
-                position: relative;
-            }
-            
-            .bottom-nav {
-                max-width: 500px;
-                margin: 0 auto;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-        }
-
-        .contacts-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 16px;
-            cursor: pointer;
-            padding: 5px;
-            margin-right: 5px;
+        .add-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
+        .add-button {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .add-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .add-button i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        .add-button span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .currency-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .currency-group .form-control {
+            flex: 1;
+        }
+        
+        .currency-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-weight: 600;
+            min-width: 80px;
+        }
+
         .client-header {
             display: flex;
             justify-content: space-between;
@@ -973,13 +986,19 @@
             margin-top: 10px;
         }
         
-        .balance-info {
+        .balance-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .balance-item {
             display: flex;
             justify-content: space-between;
-            padding: 15px;
+            padding: 12px;
             background: var(--light);
             border-radius: var(--radius);
-            margin-top: 15px;
             font-weight: 600;
         }
         
@@ -997,6 +1016,55 @@
         
         .balance-negative {
             color: var(--danger);
+        }
+
+        .contacts-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid, .quick-actions, .finance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card, .action-card, .finance-card {
+                padding: 15px;
+            }
+            
+            .section {
+                margin: 15px 10px;
+            }
+            
+            .developer-info {
+                display: none;
+            }
+            
+            .add-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 500px;
+                margin: 0 auto;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                min-height: 100vh;
+                position: relative;
+            }
+            
+            .bottom-nav {
+                max-width: 500px;
+                margin: 0 auto;
+                left: 50%;
+                transform: translateX(-50%);
+            }
         }
     </style>
 </head>
@@ -1180,8 +1248,18 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="form-label">المبلغ</label>
-                            <input type="number" class="form-control" id="amountValue" placeholder="أدخل المبلغ" step="0.01">
+                            <label class="form-label">المبلغ (ريال سعودي)</label>
+                            <div class="currency-group">
+                                <input type="number" class="form-control" id="amountValueSAR" placeholder="0.00" step="0.01" min="0">
+                                <div class="currency-label">ر.س</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">المبلغ (ريال يمني)</label>
+                            <div class="currency-group">
+                                <input type="number" class="form-control" id="amountValueYER" placeholder="0.00" step="0.01" min="0">
+                                <div class="currency-label">ر.ي</div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">العميل (اختياري)</label>
@@ -1228,22 +1306,14 @@
                 <div class="page-title" id="clientRecordsTitle">سجل العميل</div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-plus-circle"></i> إضافة معاملة جديدة
+            <div class="add-buttons">
+                <div class="add-button" onclick="showAddTransactionModal()">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>إضافة معاملة</span>
                 </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">اسم الصنف</label>
-                        <input type="text" class="form-control" id="itemName" placeholder="أدخل اسم الصنف">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">القيمة</label>
-                        <input type="number" class="form-control" id="itemValue" placeholder="أدخل القيمة" step="0.01">
-                    </div>
-                    <button class="btn btn-block" onclick="addClientRecord()">
-                        <i class="fas fa-plus"></i> إضافة
-                    </button>
+                <div class="add-button" onclick="showAddDeliveredAmountModal()">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>مبلغ مسلم</span>
                 </div>
             </div>
 
@@ -1257,8 +1327,8 @@
                             <tr>
                                 <th>اسم الصنف</th>
                                 <th>القيمة</th>
-                                <th>التاريخ</th>
-                                <th>النقاط</th>
+                                <th>تاريخ الأخذ</th>
+                                <th>الوقت</th>
                                 <th>خيارات</th>
                             </tr>
                         </thead>
@@ -1268,19 +1338,18 @@
                     <div class="total" id="clientTotal">الإجمالي: 0.00</div>
                     
                     <div class="balance-info">
-                        <span class="balance-label">الرصيد المتبقي:</span>
-                        <span class="balance-amount" id="clientBalance">0.00 ر.س</span>
+                        <!-- سيتم ملؤه تلقائياً بـ JavaScript -->
                     </div>
                     
                     <div class="btn-group" style="display: flex; gap: 10px; margin-top: 15px;">
                         <button class="btn btn-success" onclick="sendClientStatement('whatsapp')">
-                            <i class="fab fa-whatsapp"></i>   
+                            <i class="fab fa-whatsapp"></i> واتساب  
                         </button>
                         <button class="btn btn-info" onclick="sendClientStatement('sms')">
-                            <i class="fas fa-sms"></i>   
+                            <i class="fas fa-sms"></i> رسالة نصية
                         </button>
                         <button class="btn btn-danger" onclick="deleteClientAccount()">
-                            <i class="fas fa-trash"></i>   
+                            <i class="fas fa-trash"></i> حذف الحساب
                         </button>
                     </div>
                 </div>
@@ -1291,14 +1360,6 @@
                     <i class="fas fa-money-bill-wave"></i> المبالغ المسلمة للعميل
                 </div>
                 <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">المبلغ</label>
-                        <input type="number" class="form-control" id="clientAmountValue" placeholder="أدخل المبلغ" step="0.01">
-                    </div>
-                    <button class="btn btn-block" onclick="addClientDeliveredAmount()">
-                        <i class="fas fa-plus"></i> إضافة مبلغ مسلم
-                    </button>
-                    
                     <div class="list-container" id="clientDeliveredAmountsList" style="margin-top: 15px;">
                     </div>
                 </div>
@@ -1617,6 +1678,7 @@
         </div>
     </div>
 
+    <!-- النوافذ المنبثقة الأصلية -->
     <div class="modal" id="clientModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1729,6 +1791,72 @@
         </div>
     </div>
 
+    <!-- النوافذ المنبثقة الجديدة -->
+    <div class="modal" id="addTransactionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">إضافة معاملة جديدة</div>
+                <button class="modal-close" onclick="closeModal('addTransactionModal')">&times;</button>
+            </div>
+            <form id="addTransactionForm">
+                <div class="form-group">
+                    <label class="form-label">اسم الصنف</label>
+                    <input type="text" class="form-control" id="transactionItemName" placeholder="أدخل اسم الصنف" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">القيمة (ريال سعودي)</label>
+                    <div class="currency-group">
+                        <input type="number" class="form-control" id="transactionValueSAR" placeholder="0.00" step="0.01" min="0">
+                        <div class="currency-label">ر.س</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">القيمة (ريال يمني)</label>
+                    <div class="currency-group">
+                        <input type="number" class="form-control" id="transactionValueYER" placeholder="0.00" step="0.01" min="0">
+                        <div class="currency-label">ر.ي</div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-block">
+                    <i class="fas fa-plus"></i> إضافة المعاملة
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="addDeliveredAmountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">إضافة مبلغ مسلم</div>
+                <button class="modal-close" onclick="closeModal('addDeliveredAmountModal')">&times;</button>
+            </div>
+            <form id="addDeliveredAmountForm">
+                <div class="form-group">
+                    <label class="form-label">المبلغ (ريال سعودي)</label>
+                    <div class="currency-group">
+                        <input type="number" class="form-control" id="deliveredAmountSAR" placeholder="0.00" step="0.01" min="0" required>
+                        <div class="currency-label">ر.س</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">المبلغ (ريال يمني)</label>
+                    <div class="currency-group">
+                        <input type="number" class="form-control" id="deliveredAmountYER" placeholder="0.00" step="0.01" min="0">
+                        <div class="currency-label">ر.ي</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">التاريخ</label>
+                    <input type="date" class="form-control" id="deliveredAmountDate" required>
+                </div>
+                <button type="submit" class="btn btn-block">
+                    <i class="fas fa-plus"></i> إضافة المبلغ المسلم
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- باقي النوافذ المنبثقة الأصلية -->
     <div class="modal" id="invoiceModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1912,6 +2040,14 @@
             document.getElementById('invoiceForm').addEventListener('submit', addInvoice);
             document.getElementById('voucherForm').addEventListener('submit', addVoucher);
             document.getElementById('transferForm').addEventListener('submit', addTransfer);
+            document.getElementById('addTransactionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addClientTransaction();
+            });
+            document.getElementById('addDeliveredAmountForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addClientDeliveredAmount();
+            });
             
             document.getElementById('searchInput').addEventListener('input', searchData);
             
@@ -2200,6 +2336,20 @@
             openModal('registerModal');
         }
 
+        function showAddTransactionModal() {
+            document.getElementById('transactionItemName').value = '';
+            document.getElementById('transactionValueSAR').value = '';
+            document.getElementById('transactionValueYER').value = '';
+            openModal('addTransactionModal');
+        }
+
+        function showAddDeliveredAmountModal() {
+            document.getElementById('deliveredAmountSAR').value = '';
+            document.getElementById('deliveredAmountYER').value = '';
+            document.getElementById('deliveredAmountDate').value = new Date().toISOString().split('T')[0];
+            openModal('addDeliveredAmountModal');
+        }
+
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
         }
@@ -2226,9 +2376,9 @@
                 joinDate: new Date().toISOString().split('T')[0],
                 records: [],
                 totalSpent: 0,
-                loyaltyPoints: 0,
                 deliveredAmounts: [],
-                balance: 0
+                balanceSAR: 0,
+                balanceYER: 0
             };
             
             saveData();
@@ -2367,6 +2517,78 @@
             alert('تم إنشاء الحوالة بنجاح!');
         }
 
+        function addClientTransaction() {
+            if (!currentClient) return;
+            
+            const item = document.getElementById('transactionItemName').value;
+            const valueSAR = parseFloat(document.getElementById('transactionValueSAR').value) || 0;
+            const valueYER = parseFloat(document.getElementById('transactionValueYER').value) || 0;
+            
+            if (!item) {
+                alert('يرجى إدخال اسم الصنف');
+                return;
+            }
+            
+            if (valueSAR === 0 && valueYER === 0) {
+                alert('يرجى إدخال قيمة للمعاملة');
+                return;
+            }
+            
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            const timeStr = today.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+            
+            if (!clients[currentClient].records) {
+                clients[currentClient].records = [];
+            }
+            
+            clients[currentClient].records.push({
+                item: item,
+                valueSAR: valueSAR,
+                valueYER: valueYER,
+                date: dateStr,
+                time: timeStr,
+                takenDate: dateStr
+            });
+            
+            clients[currentClient].totalSpent += valueSAR;
+            
+            saveData();
+            renderClientRecords();
+            updateClientBalance();
+            closeModal('addTransactionModal');
+            alert('تم إضافة المعاملة بنجاح!');
+        }
+
+        function addClientDeliveredAmount() {
+            if (!currentClient) return;
+            
+            const amountSAR = parseFloat(document.getElementById('deliveredAmountSAR').value) || 0;
+            const amountYER = parseFloat(document.getElementById('deliveredAmountYER').value) || 0;
+            const date = document.getElementById('deliveredAmountDate').value;
+            
+            if (amountSAR === 0 && amountYER === 0) {
+                alert('يرجى إدخال مبلغ');
+                return;
+            }
+            
+            if (!clients[currentClient].deliveredAmounts) {
+                clients[currentClient].deliveredAmounts = [];
+            }
+            
+            clients[currentClient].deliveredAmounts.push({
+                amountSAR: amountSAR,
+                amountYER: amountYER,
+                date: date
+            });
+            
+            saveData();
+            renderClientDeliveredAmounts();
+            updateClientBalance();
+            closeModal('addDeliveredAmountModal');
+            alert('تم إضافة المبلغ المسلم بنجاح!');
+        }
+
         function addInvoiceItem() {
             const itemsContainer = document.getElementById('invoiceItems');
             const newItem = document.createElement('div');
@@ -2410,7 +2632,7 @@
                             </div>
                             <div class="item-details">
                                 <div class="item-name">${client}</div>
-                                <div class="item-desc">${clients[client].phone} - ${clients[client].loyaltyPoints} نقطة</div>
+                                <div class="item-desc">${clients[client].phone} - ${clients[client].totalSpent.toFixed(2)} ر.س</div>
                             </div>
                         </div>
                         <div class="client-actions">
@@ -2677,19 +2899,24 @@
             container.innerHTML = '';
             
             const client = clients[currentClient];
-            let total = 0;
+            let totalSAR = 0;
+            let totalYER = 0;
             
             if (client.records && client.records.length > 0) {
                 client.records.forEach((record, index) => {
-                    const points = Math.floor(record.value / 10);
-                    total += record.value;
+                    totalSAR += record.valueSAR || 0;
+                    totalYER += record.valueYER || 0;
                     
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${record.item}</td>
-                        <td>${record.value.toFixed(2)}</td>
-                        <td>${record.date}</td>
-                        <td>+${points}</td>
+                        <td>
+                            ${record.valueSAR ? record.valueSAR.toFixed(2) + ' ر.س' : ''}
+                            ${record.valueSAR && record.valueYER ? '<br>' : ''}
+                            ${record.valueYER ? record.valueYER.toFixed(2) + ' ر.ي' : ''}
+                        </td>
+                        <td>${record.takenDate || record.date}</td>
+                        <td>${record.time}</td>
                         <td>
                             <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="deleteClientRecord(${index})">
                                 <i class="fas fa-trash"></i> حذف
@@ -2706,7 +2933,12 @@
                 `;
             }
             
-            document.getElementById('clientTotal').textContent = `الإجمالي: ${total.toFixed(2)}`;
+            document.getElementById('clientTotal').innerHTML = `
+                الإجمالي: 
+                ${totalSAR > 0 ? totalSAR.toFixed(2) + ' ر.س' : ''}
+                ${totalSAR > 0 && totalYER > 0 ? ' + ' : ''}
+                ${totalYER > 0 ? totalYER.toFixed(2) + ' ر.ي' : ''}
+            `;
         }
 
         function renderEmployeeRecords() {
@@ -2747,43 +2979,6 @@
             document.getElementById('employeeTotal').textContent = `الإجمالي: ${total.toFixed(2)}`;
         }
 
-        function addClientRecord() {
-            if (!currentClient) return;
-            
-            const item = document.getElementById('itemName').value;
-            const value = parseFloat(document.getElementById('itemValue').value);
-            
-            if (!item || !value) {
-                alert('يرجى ملء جميع الحقول');
-                return;
-            }
-            
-            const today = new Date();
-            const dateStr = today.toISOString().split('T')[0];
-            const points = Math.floor(value / 10);
-            
-            if (!clients[currentClient].records) {
-                clients[currentClient].records = [];
-            }
-            
-            clients[currentClient].records.push({
-                item: item,
-                value: value,
-                date: dateStr
-            });
-            
-            clients[currentClient].totalSpent += value;
-            clients[currentClient].loyaltyPoints += points;
-            
-            document.getElementById('itemName').value = '';
-            document.getElementById('itemValue').value = '';
-            
-            saveData();
-            renderClientRecords();
-            updateClientBalance();
-            alert('تم إضافة المعاملة بنجاح!');
-        }
-
         function addEmployeeRecord() {
             if (!currentEmployee) return;
             
@@ -2820,10 +3015,8 @@
             if (!currentClient || !confirm('هل أنت متأكد من حذف هذه المعاملة؟')) return;
             
             const record = clients[currentClient].records[index];
-            const points = Math.floor(record.value / 10);
             
-            clients[currentClient].totalSpent -= record.value;
-            clients[currentClient].loyaltyPoints = Math.max(0, clients[currentClient].loyaltyPoints - points);
+            clients[currentClient].totalSpent -= record.valueSAR || 0;
             clients[currentClient].records.splice(index, 1);
             
             saveData();
@@ -2848,41 +3041,162 @@
             let message = `كشف حساب العميل: ${currentClient}\n`;
             message += `رقم الهاتف: ${client.phone}\n`;
             if (client.email) message += `البريد الإلكتروني: ${client.email}\n`;
-            message += `إجمالي المشتريات: ${client.totalSpent.toFixed(2)} ر.س\n`;
-            message += `نقاط الولاء: ${client.loyaltyPoints} نقطة\n`;
+            message += `══════════════════════════\n\n`;
             
-            let totalDelivered = 0;
-            if (client.deliveredAmounts && client.deliveredAmounts.length > 0) {
-                message += `\nالمبالغ المسلمة:\n`;
-                client.deliveredAmounts.forEach(amount => {
-                    message += `- ${amount.amount.toFixed(2)} ر.س (${amount.date})\n`;
-                    totalDelivered += amount.amount;
-                });
-            }
-            
-            const balance = client.totalSpent - totalDelivered;
-            message += `\nإجمالي المبالغ المسلمة: ${totalDelivered.toFixed(2)} ر.س\n`;
-            message += `الرصيد المتبقي: ${balance.toFixed(2)} ر.س\n\n`;
-            
-            message += `التفاصيل:\n`;
-            
+            let totalPurchasesSAR = 0;
+            let totalPurchasesYER = 0;
             if (client.records && client.records.length > 0) {
+                message += `🛒 المشتريات والخدمات:\n`;
+                message += `══════════════════════════\n`;
                 client.records.forEach(record => {
-                    message += `- ${record.item}: ${record.value.toFixed(2)} ر.س (${record.date})\n`;
+                    totalPurchasesSAR += record.valueSAR || 0;
+                    totalPurchasesYER += record.valueYER || 0;
+                    
+                    let recordStr = `• ${record.item}: `;
+                    if (record.valueSAR > 0) recordStr += `${record.valueSAR.toFixed(2)} ر.س `;
+                    if (record.valueSAR > 0 && record.valueYER > 0) recordStr += `+ `;
+                    if (record.valueYER > 0) recordStr += `${record.valueYER.toFixed(2)} ر.ي`;
+                    recordStr += ` (${record.takenDate || record.date} - ${record.time})`;
+                    message += `${recordStr}\n`;
                 });
-            } else {
-                message += `لا توجد معاملات مسجلة\n`;
+                message += `\n`;
             }
             
-            message += `\nشكراً لتعاملكم معنا`;
+            message += `💰 إجمالي المشتريات:\n`;
+            if (totalPurchasesSAR > 0) message += `${totalPurchasesSAR.toFixed(2)} ر.س `;
+            if (totalPurchasesSAR > 0 && totalPurchasesYER > 0) message += `+ `;
+            if (totalPurchasesYER > 0) message += `${totalPurchasesYER.toFixed(2)} ر.ي`;
+            message += `\n\n`;
+            
+            let totalDeliveredSAR = 0;
+            let totalDeliveredYER = 0;
+            if (client.deliveredAmounts && client.deliveredAmounts.length > 0) {
+                message += `💵 المبالغ المسلمة:\n`;
+                message += `══════════════════════════\n`;
+                client.deliveredAmounts.forEach(amount => {
+                    let amountStr = '';
+                    if (amount.amountSAR > 0) amountStr += `${amount.amountSAR.toFixed(2)} ر.س `;
+                    if (amount.amountSAR > 0 && amount.amountYER > 0) amountStr += `+ `;
+                    if (amount.amountYER > 0) amountStr += `${amount.amountYER.toFixed(2)} ر.ي`;
+                    message += `• ${amountStr} (${amount.date})\n`;
+                    
+                    totalDeliveredSAR += amount.amountSAR || 0;
+                    totalDeliveredYER += amount.amountYER || 0;
+                });
+                message += `\n`;
+            }
+            
+            message += `💳 إجمالي المبالغ المسلمة:\n`;
+            if (totalDeliveredSAR > 0) message += `${totalDeliveredSAR.toFixed(2)} ر.س `;
+            if (totalDeliveredSAR > 0 && totalDeliveredYER > 0) message += `+ `;
+            if (totalDeliveredYER > 0) message += `${totalDeliveredYER.toFixed(2)} ر.ي`;
+            message += `\n\n`;
+            
+            const balanceSAR = totalPurchasesSAR - totalDeliveredSAR;
+            const balanceYER = totalPurchasesYER - totalDeliveredYER;
+            
+            message += `⚖️ الرصيد المتبقي:\n`;
+            message += `══════════════════════════\n`;
+            if (balanceSAR !== 0) message += `• ${balanceSAR.toFixed(2)} ر.س\n`;
+            if (balanceYER !== 0) message += `• ${balanceYER.toFixed(2)} ر.ي\n`;
+            if (balanceSAR === 0 && balanceYER === 0) message += `• 0.00 ر.س\n• 0.00 ر.ي\n`;
+            message += `\n`;
+            
+            message += `📅 ملخص الحساب:\n`;
+            message += `══════════════════════════\n`;
+            message += `• إجمالي المشتريات: ${totalPurchasesSAR.toFixed(2)} ر.س + ${totalPurchasesYER.toFixed(2)} ر.ي\n`;
+            message += `• إجمالي المسدد: ${totalDeliveredSAR.toFixed(2)} ر.س + ${totalDeliveredYER.toFixed(2)} ر.ي\n`;
+            message += `• الرصيد المتبقي: ${balanceSAR.toFixed(2)} ر.س + ${balanceYER.toFixed(2)} ر.ي\n\n`;
+            
+            message += `📞 للاستفسار: ${client.phone}\n`;
+            message += `────────────────────────────\n`;
+            message += `شكراً لتعاملكم معنا 🌟\n`;
+            message += `نظام المحاسب الذكي`;
             
             if (method === 'whatsapp') {
                 const phone = client.phone.replace(/\D/g, '');
                 const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
                 window.open(url, '_blank');
             } else if (method === 'sms') {
-                alert(`جاري إرسال رسالة نصية إلى ${client.phone}\n\n${message}`);
+                if ('sms' in navigator) {
+                    navigator.sms.send(client.phone, message)
+                        .then(() => alert('تم إرسال الرسالة النصية بنجاح!'))
+                        .catch(error => {
+                            console.error('خطأ في إرسال الرسالة:', error);
+                            alert('تعذر إرسال الرسالة النصية. يمكنك نسخ النص وإرساله يدوياً.');
+                            copyToClipboard(message);
+                        });
+                } else {
+                    alert('عذراً، متصفحك لا يدعم إرسال الرسائل النصية. يمكنك نسخ النص وإرساله يدوياً.');
+                    copyToClipboard(message);
+                }
             }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => alert('تم نسخ النص إلى الحافظة! يمكنك الآن إرساله يدوياً.'))
+                .catch(err => {
+                    console.error('خطأ في النسخ:', err);
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('تم نسخ النص إلى الحافظة! يمكنك الآن إرساله يدوياً.');
+                });
+        }
+
+        function updateClientBalance() {
+            if (!currentClient || !clients[currentClient]) return;
+            
+            const client = clients[currentClient];
+            
+            let totalPurchasesSAR = 0;
+            let totalPurchasesYER = 0;
+            if (client.records && client.records.length > 0) {
+                client.records.forEach(record => {
+                    totalPurchasesSAR += record.valueSAR || 0;
+                    totalPurchasesYER += record.valueYER || 0;
+                });
+            }
+            
+            let totalDeliveredSAR = 0;
+            let totalDeliveredYER = 0;
+            if (client.deliveredAmounts && client.deliveredAmounts.length > 0) {
+                client.deliveredAmounts.forEach(amount => {
+                    totalDeliveredSAR += amount.amountSAR || 0;
+                    totalDeliveredYER += amount.amountYER || 0;
+                });
+            }
+            
+            const balanceSAR = totalPurchasesSAR - totalDeliveredSAR;
+            const balanceYER = totalPurchasesYER - totalDeliveredYER;
+            
+            const balanceContainer = document.querySelector('.balance-info');
+            if (balanceContainer) {
+                balanceContainer.innerHTML = `
+                    <div class="balance-container">
+                        <div class="balance-item">
+                            <span class="balance-label">الرصيد المتبقي (ريال سعودي):</span>
+                            <span class="balance-amount ${balanceSAR > 0 ? 'balance-negative' : balanceSAR < 0 ? 'balance-positive' : ''}">
+                                ${balanceSAR.toFixed(2)} ر.س
+                            </span>
+                        </div>
+                        <div class="balance-item">
+                            <span class="balance-label">الرصيد المتبقي (ريال يمني):</span>
+                            <span class="balance-amount ${balanceYER > 0 ? 'balance-negative' : balanceYER < 0 ? 'balance-positive' : ''}">
+                                ${balanceYER.toFixed(2)} ر.ي
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            clients[currentClient].balanceSAR = balanceSAR;
+            clients[currentClient].balanceYER = balanceYER;
+            saveData();
         }
 
         function loadContacts() {
@@ -3087,10 +3401,11 @@
         }
 
         function addDeliveredAmount() {
-            const amount = parseFloat(document.getElementById('amountValue').value);
+            const amountSAR = parseFloat(document.getElementById('amountValueSAR').value) || 0;
+            const amountYER = parseFloat(document.getElementById('amountValueYER').value) || 0;
             const client = document.getElementById('amountClient').value;
             
-            if (!amount) {
+            if (amountSAR === 0 && amountYER === 0) {
                 alert('يرجى إدخال المبلغ');
                 return;
             }
@@ -3099,46 +3414,18 @@
             const dateStr = today.toISOString().split('T')[0];
             
             deliveredAmounts.push({
-                amount: amount,
+                amountSAR: amountSAR,
+                amountYER: amountYER,
                 date: dateStr,
                 client: client
             });
             
-            document.getElementById('amountValue').value = '';
+            document.getElementById('amountValueSAR').value = '';
+            document.getElementById('amountValueYER').value = '';
             
             saveData();
             renderDeliveredAmounts();
             alert('تم إضافة المبلغ المسلم بنجاح!');
-        }
-
-        function addClientDeliveredAmount() {
-            if (!currentClient) return;
-            
-            const amount = parseFloat(document.getElementById('clientAmountValue').value);
-            
-            if (!amount) {
-                alert('يرجى إدخال المبلغ');
-                return;
-            }
-            
-            const today = new Date();
-            const dateStr = today.toISOString().split('T')[0];
-            
-            if (!clients[currentClient].deliveredAmounts) {
-                clients[currentClient].deliveredAmounts = [];
-            }
-            
-            clients[currentClient].deliveredAmounts.push({
-                amount: amount,
-                date: dateStr
-            });
-            
-            document.getElementById('clientAmountValue').value = '';
-            
-            saveData();
-            renderClientDeliveredAmounts();
-            updateClientBalance();
-            alert('تم إضافة المبلغ المسلم للعميل بنجاح!');
         }
 
         function renderDeliveredAmounts() {
@@ -3159,10 +3446,12 @@
                 return;
             }
             
-            let totalAmount = 0;
+            let totalAmountSAR = 0;
+            let totalAmountYER = 0;
             
             deliveredAmounts.forEach((amount, index) => {
-                totalAmount += amount.amount;
+                totalAmountSAR += amount.amountSAR || 0;
+                totalAmountYER += amount.amountYER || 0;
                 
                 const amountElement = document.createElement('div');
                 amountElement.className = 'list-item';
@@ -3172,13 +3461,20 @@
                             <i class="fas fa-money-bill-wave"></i>
                         </div>
                         <div class="item-details">
-                            <div class="item-name">${amount.amount.toFixed(2)} ر.س</div>
+                            <div class="item-name">
+                                ${amount.amountSAR ? amount.amountSAR.toFixed(2) + ' ر.س' : ''}
+                                ${amount.amountSAR && amount.amountYER ? ' + ' : ''}
+                                ${amount.amountYER ? amount.amountYER.toFixed(2) + ' ر.ي' : ''}
+                            </div>
                             <div class="item-desc">${amount.date} ${amount.client ? `- ${amount.client}` : ''}</div>
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span class="delivered-amount">
-                            <i class="fas fa-check-circle"></i> ${amount.amount.toFixed(2)} ر.س
+                            <i class="fas fa-check-circle"></i> 
+                            ${amount.amountSAR ? amount.amountSAR.toFixed(2) + ' ر.س' : ''}
+                            ${amount.amountSAR && amount.amountYER ? ' + ' : ''}
+                            ${amount.amountYER ? amount.amountYER.toFixed(2) + ' ر.ي' : ''}
                         </span>
                         <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="deleteDeliveredAmount(${index})">
                             <i class="fas fa-trash"></i> حذف
@@ -3199,7 +3495,11 @@
                         <div class="item-name">إجمالي المبالغ المسلمة</div>
                     </div>
                 </div>
-                <div>${totalAmount.toFixed(2)} ر.س</div>
+                <div>
+                    ${totalAmountSAR > 0 ? totalAmountSAR.toFixed(2) + ' ر.س' : ''}
+                    ${totalAmountSAR > 0 && totalAmountYER > 0 ? ' + ' : ''}
+                    ${totalAmountYER > 0 ? totalAmountYER.toFixed(2) + ' ر.ي' : ''}
+                </div>
             `;
             container.appendChild(totalElement);
         }
@@ -3226,10 +3526,12 @@
                 return;
             }
             
-            let totalAmount = 0;
+            let totalAmountSAR = 0;
+            let totalAmountYER = 0;
             
             client.deliveredAmounts.forEach((amount, index) => {
-                totalAmount += amount.amount;
+                totalAmountSAR += amount.amountSAR || 0;
+                totalAmountYER += amount.amountYER || 0;
                 
                 const amountElement = document.createElement('div');
                 amountElement.className = 'list-item';
@@ -3239,13 +3541,20 @@
                             <i class="fas fa-money-bill-wave"></i>
                         </div>
                         <div class="item-details">
-                            <div class="item-name">${amount.amount.toFixed(2)} ر.س</div>
+                            <div class="item-name">
+                                ${amount.amountSAR ? amount.amountSAR.toFixed(2) + ' ر.س' : ''}
+                                ${amount.amountSAR && amount.amountYER ? ' + ' : ''}
+                                ${amount.amountYER ? amount.amountYER.toFixed(2) + ' ر.ي' : ''}
+                            </div>
                             <div class="item-desc">${amount.date}</div>
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span class="delivered-amount">
-                            <i class="fas fa-check-circle"></i> ${amount.amount.toFixed(2)} ر.س
+                            <i class="fas fa-check-circle"></i> 
+                            ${amount.amountSAR ? amount.amountSAR.toFixed(2) + ' ر.س' : ''}
+                            ${amount.amountSAR && amount.amountYER ? ' + ' : ''}
+                            ${amount.amountYER ? amount.amountYER.toFixed(2) + ' ر.ي' : ''}
                         </span>
                         <button class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="deleteClientDeliveredAmount(${index})">
                             <i class="fas fa-trash"></i> حذف
@@ -3266,7 +3575,11 @@
                         <div class="item-name">إجمالي المبالغ المسلمة</div>
                     </div>
                 </div>
-                <div>${totalAmount.toFixed(2)} ر.س</div>
+                <div>
+                    ${totalAmountSAR > 0 ? totalAmountSAR.toFixed(2) + ' ر.س' : ''}
+                    ${totalAmountSAR > 0 && totalAmountYER > 0 ? ' + ' : ''}
+                    ${totalAmountYER > 0 ? totalAmountYER.toFixed(2) + ' ر.ي' : ''}
+                </div>
             `;
             container.appendChild(totalElement);
         }
@@ -3288,42 +3601,6 @@
             renderClientDeliveredAmounts();
             updateClientBalance();
             alert('تم حذف المبلغ المسلم للعميل بنجاح!');
-        }
-
-        function updateClientBalance() {
-            if (!currentClient || !clients[currentClient]) return;
-            
-            const client = clients[currentClient];
-            
-            let totalPurchases = 0;
-            if (client.records && client.records.length > 0) {
-                client.records.forEach(record => {
-                    totalPurchases += record.value;
-                });
-            }
-            
-            let totalDelivered = 0;
-            if (client.deliveredAmounts && client.deliveredAmounts.length > 0) {
-                client.deliveredAmounts.forEach(amount => {
-                    totalDelivered += amount.amount;
-                });
-            }
-            
-            const balance = totalPurchases - totalDelivered;
-            
-            const balanceElement = document.getElementById('clientBalance');
-            balanceElement.textContent = `${balance.toFixed(2)} ر.س`;
-            
-            if (balance > 0) {
-                balanceElement.className = 'balance-amount balance-negative';
-            } else if (balance < 0) {
-                balanceElement.className = 'balance-amount balance-positive';
-            } else {
-                balanceElement.className = 'balance-amount';
-            }
-            
-            clients[currentClient].balance = balance;
-            saveData();
         }
 
         function showDeliveredAmounts() {
