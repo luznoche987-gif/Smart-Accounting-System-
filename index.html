@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المحاسب الذكي - نظام المحاسبة المتكامل</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -535,10 +533,11 @@
             color: var(--primary);
         }
 
+        /* التعديل الرئيسي: نقل زر تبديل المظهر إلى الجانب الأيسر */
         .theme-toggle {
             position: fixed;
             bottom: 80px;
-            left: 15px;
+            left: 15px; /* تغيير من right إلى left */
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -1130,6 +1129,7 @@
             color: var(--gray);
         }
 
+        /* الأنماط الجديدة لنظام العملات المستقلة */
         .currency-tabs {
             display: flex;
             margin-bottom: 20px;
@@ -1178,35 +1178,6 @@
             color: var(--warning);
         }
 
-        /* أزرار PDF الجديدة */
-        .pdf-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .pdf-buttons .btn {
-            flex: 1;
-            min-width: 120px;
-        }
-        
-        .btn-pdf {
-            background: #e74c3c;
-        }
-        
-        .btn-pdf:hover {
-            background: #c0392b;
-        }
-        
-        .btn-whatsapp-pdf {
-            background: #25D366;
-        }
-        
-        .btn-whatsapp-pdf:hover {
-            background: #128C7E;
-        }
-
         @media (max-width: 480px) {
             .stats-grid, .quick-actions, .finance-grid {
                 grid-template-columns: 1fr;
@@ -1233,10 +1204,6 @@
             }
             
             .currency-tabs {
-                flex-direction: column;
-            }
-            
-            .pdf-buttons {
                 flex-direction: column;
             }
         }
@@ -1508,7 +1475,7 @@
             </div>
         </div>
 
-        <!-- صفحة سجل العميل المعدلة مع إضافة أزرار PDF -->
+        <!-- صفحة سجل العميل المعدلة مع نظام العملات المستقلة -->
         <div id="client-records-page" class="page">
             <div class="page-header">
                 <div class="back-button" onclick="showPage('clients')">
@@ -1652,27 +1619,20 @@
                 <!-- سيتم ملؤه تلقائياً بـ JavaScript -->
             </div>
             
-            <!-- أزرار PDF الجديدة -->
-            <div class="pdf-buttons">
-                <button class="btn btn-pdf" onclick="generateClientPDF()">
-                    <i class="fas fa-file-pdf"></i> حفظ كـ PDF
-                </button>
-                <button class="btn btn-whatsapp-pdf" onclick="sendPDFViaWhatsApp()">
-                    <i class="fab fa-whatsapp"></i> إرسال PDF عبر واتساب
-                </button>
+            <div class="btn-group" style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn btn-success" onclick="sendClientStatement('whatsapp')">
-                    <i class="fab fa-whatsapp"></i> إرسال كشف حساب
+                    <i class="fab fa-whatsapp"></i>     
                 </button>
                 <button class="btn btn-info" onclick="sendClientStatement('sms')">
-                    <i class="fas fa-sms"></i> إرسال رسالة نصية
+                    <i class="fas fa-sms"></i>    
                 </button>
                 <button class="btn btn-danger" onclick="deleteClientAccount()">
-                    <i class="fas fa-trash"></i> حذف الحساب
+                    <i class="fas fa-trash"></i>   
                 </button>
             </div>
         </div>
 
-        <!-- باقي الصفحات -->
+        <!-- باقي الصفحات تبقى كما هي -->
         <div id="suppliers-page" class="page">
             <div class="page-header">
                 <div class="back-button" onclick="showPage('home')">
@@ -1979,7 +1939,7 @@
             </div>
         </div>
 
-        <!-- زر تبديل المظهر -->
+        <!-- زر تبديل المظهر - تم نقله إلى الجانب الأيسر -->
         <div class="theme-toggle" id="themeToggle">
             <i class="fas fa-moon" id="themeIcon"></i>
         </div>
@@ -4003,358 +3963,6 @@
             alert('تم حذف المعاملة بنجاح!');
         }
 
-        // دالة إنشاء PDF لسجل العميل
-        function generateClientPDF() {
-            if (!currentClient) {
-                alert('يرجى تحديد عميل أولاً');
-                return;
-            }
-
-            // استخدام مكتبة jsPDF
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // إعدادات المستند
-            doc.setFont('Arial');
-            doc.setFontSize(18);
-            doc.setTextColor(40, 40, 40);
-            
-            // عنوان التقرير
-            doc.text('كشف حساب العميل', 105, 15, { align: 'center' });
-            doc.setFontSize(14);
-            doc.text(`العميل: ${currentClient}`, 105, 25, { align: 'center' });
-            
-            // تاريخ التقرير
-            const today = new Date();
-            const dateStr = today.toLocaleDateString('ar-SA');
-            doc.text(`تاريخ التقرير: ${dateStr}`, 105, 35, { align: 'center' });
-            
-            let yPosition = 50;
-            
-            // بيانات العميل
-            const client = clients[currentClient];
-            doc.setFontSize(12);
-            doc.text(`رقم الهاتف: ${client.phone || 'غير محدد'}`, 15, yPosition);
-            yPosition += 10;
-            
-            if (client.email) {
-                doc.text(`البريد الإلكتروني: ${client.email}`, 15, yPosition);
-                yPosition += 10;
-            }
-            
-            if (client.address) {
-                doc.text(`العنوان: ${client.address}`, 15, yPosition);
-                yPosition += 10;
-            }
-            
-            doc.text(`تاريخ الانضمام: ${client.joinDate}`, 15, yPosition);
-            yPosition += 15;
-            
-            // إضافة خط فاصل
-            doc.line(15, yPosition, 195, yPosition);
-            yPosition += 10;
-            
-            // حساب الإجماليات
-            let totalPurchasesSAR = 0;
-            let totalPurchasesYER = 0;
-            let totalDeliveredSAR = 0;
-            let totalDeliveredYER = 0;
-            
-            // إضافة سجلات المعاملات
-            if (client.records && client.records.length > 0) {
-                doc.setFontSize(14);
-                doc.text('المعاملات والمشتريات', 15, yPosition);
-                yPosition += 10;
-                
-                // جدول المعاملات
-                const tableHeaders = [['اسم الصنف', 'القيمة (ر.س)', 'القيمة (ر.ي)', 'التاريخ', 'الوقت']];
-                const tableData = [];
-                
-                client.records.forEach(record => {
-                    const valueSAR = record.valueSAR || 0;
-                    const valueYER = record.valueYER || 0;
-                    
-                    totalPurchasesSAR += valueSAR;
-                    totalPurchasesYER += valueYER;
-                    
-                    tableData.push([
-                        record.item,
-                        valueSAR > 0 ? valueSAR.toFixed(2) : '-',
-                        valueYER > 0 ? valueYER.toFixed(2) : '-',
-                        record.takenDate || record.date,
-                        record.time
-                    ]);
-                });
-                
-                doc.autoTable({
-                    startY: yPosition,
-                    head: tableHeaders,
-                    body: tableData,
-                    theme: 'grid',
-                    styles: { font: 'Arial', fontSize: 10, halign: 'center' },
-                    headStyles: { fillColor: [67, 97, 238] },
-                    margin: { left: 15, right: 15 }
-                });
-                
-                yPosition = doc.lastAutoTable.finalY + 10;
-            }
-            
-            // إضافة المبالغ المسلمة
-            if (client.deliveredAmounts && client.deliveredAmounts.length > 0) {
-                doc.setFontSize(14);
-                doc.text('المبالغ المسلمة', 15, yPosition);
-                yPosition += 10;
-                
-                // جدول المبالغ المسلمة
-                const deliveredHeaders = [['المبلغ (ر.س)', 'المبلغ (ر.ي)', 'التاريخ']];
-                const deliveredData = [];
-                
-                client.deliveredAmounts.forEach(amount => {
-                    const valueSAR = amount.amountSAR || 0;
-                    const valueYER = amount.amountYER || 0;
-                    
-                    totalDeliveredSAR += valueSAR;
-                    totalDeliveredYER += valueYER;
-                    
-                    deliveredData.push([
-                        valueSAR > 0 ? valueSAR.toFixed(2) : '-',
-                        valueYER > 0 ? valueYER.toFixed(2) : '-',
-                        amount.date
-                    ]);
-                });
-                
-                doc.autoTable({
-                    startY: yPosition,
-                    head: deliveredHeaders,
-                    body: deliveredData,
-                    theme: 'grid',
-                    styles: { font: 'Arial', fontSize: 10, halign: 'center' },
-                    headStyles: { fillColor: [76, 175, 80] },
-                    margin: { left: 15, right: 15 }
-                });
-                
-                yPosition = doc.lastAutoTable.finalY + 10;
-            }
-            
-            // إضافة الملخص
-            doc.setFontSize(14);
-            doc.text('ملخص الحساب', 15, yPosition);
-            yPosition += 10;
-            
-            const balanceSAR = totalPurchasesSAR - totalDeliveredSAR;
-            const balanceYER = totalPurchasesYER - totalDeliveredYER;
-            
-            const summaryData = [
-                ['إجمالي المشتريات (ر.س)', totalPurchasesSAR.toFixed(2)],
-                ['إجمالي المشتريات (ر.ي)', totalPurchasesYER.toFixed(2)],
-                ['إجمالي المبالغ المسلمة (ر.س)', totalDeliveredSAR.toFixed(2)],
-                ['إجمالي المبالغ المسلمة (ر.ي)', totalDeliveredYER.toFixed(2)],
-                ['الرصيد المتبقي (ر.س)', balanceSAR.toFixed(2)],
-                ['الرصيد المتبقي (ر.ي)', balanceYER.toFixed(2)]
-            ];
-            
-            doc.autoTable({
-                startY: yPosition,
-                body: summaryData,
-                theme: 'grid',
-                styles: { font: 'Arial', fontSize: 10 },
-                margin: { left: 15, right: 15 }
-            });
-            
-            yPosition = doc.lastAutoTable.finalY + 15;
-            
-            // تذييل الصفحة
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text('نظام المحاسب الذكي - تم إنشاء هذا التقرير آلياً', 105, yPosition, { align: 'center' });
-            yPosition += 5;
-            doc.text('مطور بواسطة: عبد الوهاب عبد الواحد الريمي', 105, yPosition, { align: 'center' });
-            
-            // حفظ الملف
-            doc.save(`كشف_حساب_${currentClient}_${dateStr.replace(/\//g, '-')}.pdf`);
-            
-            alert('تم إنشاء ملف PDF بنجاح!');
-        }
-
-        // دالة إرسال PDF عبر واتساب
-        function sendPDFViaWhatsApp() {
-            if (!currentClient) {
-                alert('يرجى تحديد عميل أولاً');
-                return;
-            }
-            
-            // إنشاء PDF أولاً
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // إعدادات المستند
-            doc.setFont('Arial');
-            doc.setFontSize(18);
-            doc.setTextColor(40, 40, 40);
-            
-            // عنوان التقرير
-            doc.text('كشف حساب العميل', 105, 15, { align: 'center' });
-            doc.setFontSize(14);
-            doc.text(`العميل: ${currentClient}`, 105, 25, { align: 'center' });
-            
-            // تاريخ التقرير
-            const today = new Date();
-            const dateStr = today.toLocaleDateString('ar-SA');
-            doc.text(`تاريخ التقرير: ${dateStr}`, 105, 35, { align: 'center' });
-            
-            let yPosition = 50;
-            
-            // بيانات العميل
-            const client = clients[currentClient];
-            doc.setFontSize(12);
-            doc.text(`رقم الهاتف: ${client.phone || 'غير محدد'}`, 15, yPosition);
-            yPosition += 10;
-            
-            // حساب الإجماليات
-            let totalPurchasesSAR = 0;
-            let totalPurchasesYER = 0;
-            let totalDeliveredSAR = 0;
-            let totalDeliveredYER = 0;
-            
-            // إضافة سجلات المعاملات
-            if (client.records && client.records.length > 0) {
-                doc.setFontSize(14);
-                doc.text('المعاملات والمشتريات', 15, yPosition);
-                yPosition += 10;
-                
-                // جدول المعاملات
-                const tableHeaders = [['اسم الصنف', 'القيمة (ر.س)', 'القيمة (ر.ي)', 'التاريخ']];
-                const tableData = [];
-                
-                client.records.forEach(record => {
-                    const valueSAR = record.valueSAR || 0;
-                    const valueYER = record.valueYER || 0;
-                    
-                    totalPurchasesSAR += valueSAR;
-                    totalPurchasesYER += valueYER;
-                    
-                    tableData.push([
-                        record.item,
-                        valueSAR > 0 ? valueSAR.toFixed(2) : '-',
-                        valueYER > 0 ? valueYER.toFixed(2) : '-',
-                        record.takenDate || record.date
-                    ]);
-                });
-                
-                doc.autoTable({
-                    startY: yPosition,
-                    head: tableHeaders,
-                    body: tableData,
-                    theme: 'grid',
-                    styles: { font: 'Arial', fontSize: 8, halign: 'center' },
-                    headStyles: { fillColor: [67, 97, 238] },
-                    margin: { left: 15, right: 15 }
-                });
-                
-                yPosition = doc.lastAutoTable.finalY + 10;
-            }
-            
-            // إضافة المبالغ المسلمة
-            if (client.deliveredAmounts && client.deliveredAmounts.length > 0) {
-                doc.setFontSize(14);
-                doc.text('المبالغ المسلمة', 15, yPosition);
-                yPosition += 10;
-                
-                // جدول المبالغ المسلمة
-                const deliveredHeaders = [['المبلغ (ر.س)', 'المبلغ (ر.ي)', 'التاريخ']];
-                const deliveredData = [];
-                
-                client.deliveredAmounts.forEach(amount => {
-                    const valueSAR = amount.amountSAR || 0;
-                    const valueYER = amount.amountYER || 0;
-                    
-                    totalDeliveredSAR += valueSAR;
-                    totalDeliveredYER += valueYER;
-                    
-                    deliveredData.push([
-                        valueSAR > 0 ? valueSAR.toFixed(2) : '-',
-                        valueYER > 0 ? valueYER.toFixed(2) : '-',
-                        amount.date
-                    ]);
-                });
-                
-                doc.autoTable({
-                    startY: yPosition,
-                    head: deliveredHeaders,
-                    body: deliveredData,
-                    theme: 'grid',
-                    styles: { font: 'Arial', fontSize: 8, halign: 'center' },
-                    headStyles: { fillColor: [76, 175, 80] },
-                    margin: { left: 15, right: 15 }
-                });
-                
-                yPosition = doc.lastAutoTable.finalY + 10;
-            }
-            
-            // إضافة الملخص
-            doc.setFontSize(14);
-            doc.text('ملخص الحساب', 15, yPosition);
-            yPosition += 10;
-            
-            const balanceSAR = totalPurchasesSAR - totalDeliveredSAR;
-            const balanceYER = totalPurchasesYER - totalDeliveredYER;
-            
-            const summaryData = [
-                ['إجمالي المشتريات (ر.س)', totalPurchasesSAR.toFixed(2)],
-                ['إجمالي المشتريات (ر.ي)', totalPurchasesYER.toFixed(2)],
-                ['إجمالي المبالغ المسلمة (ر.س)', totalDeliveredSAR.toFixed(2)],
-                ['إجمالي المبالغ المسلمة (ر.ي)', totalDeliveredYER.toFixed(2)],
-                ['الرصيد المتبقي (ر.س)', balanceSAR.toFixed(2)],
-                ['الرصيد المتبقي (ر.ي)', balanceYER.toFixed(2)]
-            ];
-            
-            doc.autoTable({
-                startY: yPosition,
-                body: summaryData,
-                theme: 'grid',
-                styles: { font: 'Arial', fontSize: 10 },
-                margin: { left: 15, right: 15 }
-            });
-            
-            yPosition = doc.lastAutoTable.finalY + 15;
-            
-            // تذييل الصفحة
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.text('نظام المحاسب الذكي - تم إنشاء هذا التقرير آلياً', 105, yPosition, { align: 'center' });
-            yPosition += 5;
-            doc.text('مطور بواسطة: عبد الوهاب عبد الواحد الريمي', 105, yPosition, { align: 'center' });
-            
-            // تحويل PDF إلى Blob
-            const pdfBlob = doc.output('blob');
-            const pdfUrl = URL.createObjectURL(pdfBlob);
-            
-            // إنشاء رسالة نصية مصاحبة للـ PDF
-            const message = `كشف حساب العميل ${currentClient}\nتاريخ التقرير: ${dateStr}\n\nتم إنشاء هذا التقرير بواسطة نظام المحاسب الذكي`;
-            
-            // إرسال عبر واتساب
-            const phone = client.phone.replace(/\D/g, '');
-            const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-            
-            // فتح نافذة واتساب
-            window.open(whatsappUrl, '_blank');
-            
-            // تنزيل الملف تلقائياً بعد ثوانٍ قليلة
-            setTimeout(() => {
-                const downloadLink = document.createElement('a');
-                downloadLink.href = pdfUrl;
-                downloadLink.download = `كشف_حساب_${currentClient}_${dateStr.replace(/\//g, '-')}.pdf`;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-                
-                // تحرير الذاكرة
-                setTimeout(() => URL.revokeObjectURL(pdfUrl), 100);
-            }, 1000);
-            
-            alert('تم فتح واتساب لإرسال ملف PDF. سيتم تحميل الملف تلقائياً.');
-        }
-
         function sendClientStatement(method) {
             if (!currentClient) return;
             
@@ -4473,7 +4081,7 @@
                 formattedPhone = '967' + formattedPhone;
             }
             
-            if ('sms' in navigator && 'select' in navigator.sms) {
+            if ('sms' in navigator && 'send' in navigator.sms) {
                 navigator.sms.send(formattedPhone, message)
                     .then(() => alert('تم إرسال الرسالة النصية بنجاح!'))
                     .catch(error => {
